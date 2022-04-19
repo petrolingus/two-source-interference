@@ -58,7 +58,9 @@ public class Service extends javafx.concurrent.Service<Void> {
                     Platform.runLater(() -> {
                         GraphicsContext g = canvas.getGraphicsContext2D();
                         g.fillRect(0, 0, canvas.getWidth(), canvas.getWidth());
+                        g.setStroke(Color.GRAY);
                         g.drawImage(img, 0, 0);
+                        g.strokeRect(0, 0, canvas.getWidth(), canvas.getWidth());
                     });
                 }, 1000, 16, TimeUnit.MILLISECONDS);
 
