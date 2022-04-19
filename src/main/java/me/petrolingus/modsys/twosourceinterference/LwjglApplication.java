@@ -24,9 +24,9 @@ public class LwjglApplication {
 
     private static final float CAMERA_POS_STEP = 0.05f;
     private static final float MOUSE_SENSITIVITY = 0.2f;
-    private static Vector3f cameraInc = new Vector3f();
-    private static Camera camera = new Camera();
-    private static MouseInput mouseInput = new MouseInput();
+    private final static Vector3f cameraInc = new Vector3f();
+    private final static Camera camera = new Camera();
+    private final static MouseInput mouseInput = new MouseInput();
 
     public void run() throws Exception {
         init();
@@ -110,13 +110,13 @@ public class LwjglApplication {
 
         GL11.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
-        Matrix4f projectionMatrix = new Matrix4f().setPerspective(
-                (float) Math.toRadians(60.0f),
-                (float) 800 / 800,
-                0.01f,
-                1000.f);
+//        Matrix4f projectionMatrix = new Matrix4f().setPerspective(
+//                (float) Math.toRadians(60.0f),
+//                (float) 800 / 800,
+//                0.01f,
+//                1000.f);
 
-//        Matrix4f projectionMatrix = new Matrix4f().setOrtho(-2f, 2f, -2f, 2f, 0.01f, 1000.f);
+        Matrix4f projectionMatrix = new Matrix4f().setOrtho(-1f, 1f, -1f, 1f, 0.01f, 1000.f);
 
 
         float t = 0;
@@ -188,6 +188,7 @@ public class LwjglApplication {
 
         // Update camera position
         camera.movePosition(cameraInc.x * CAMERA_POS_STEP, cameraInc.y * CAMERA_POS_STEP, cameraInc.z * CAMERA_POS_STEP);
+        camera.addZoom(mouseInput.getZoom());
 
         // Update camera based on mouse
         if (mouseInput.isRightButtonPressed()) {
@@ -198,6 +199,7 @@ public class LwjglApplication {
 
     private static Matrix4f getViewMatrix(Camera camera) {
 
+        float cameraZoom = camera.getZoom();
         Vector3f cameraPos = camera.getPosition();
         Vector3f rotation = camera.getRotation();
 
@@ -205,7 +207,8 @@ public class LwjglApplication {
                 .identity()
                 .rotate((float) Math.toRadians(rotation.x), new Vector3f(1, 0, 0))
                 .rotate((float) Math.toRadians(rotation.y), new Vector3f(0, 1, 0))
-                .translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+                .translate(-cameraPos.x, -cameraPos.y, -cameraPos.z)
+                .scale(cameraZoom);
     }
 
 

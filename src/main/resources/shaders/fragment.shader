@@ -11,7 +11,15 @@ vec3 hsv2rgb(vec3 c)
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
 
+float valueMapper(float value, float min, float max)
+{
+    return ((value - min) / (max - min));
+}
+
 void main()
 {
-    fragColor = vec4(hsv2rgb(vec3(height, 1.0, 1.0)), 1.0);
+    vec3 red = vec3(1.0, 0.0, 0.0) * (height * 8);
+    vec3 blue = vec3(0.0, 0.9, 0.9) * (1 - height * 8);
+    vec3 color = blue + red;
+    fragColor = vec4(color, 1.0);
 }

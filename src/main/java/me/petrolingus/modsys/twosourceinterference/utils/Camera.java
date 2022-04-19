@@ -8,14 +8,20 @@ public class Camera {
 
     private final Vector3f rotation;
 
+    private float zoom;
+
     public Camera() {
-        position = new Vector3f(0, 0, 0);
-        rotation = new Vector3f(33, -45, 0);
+        this(new Vector3f(0, 0, 0), new Vector3f(33, -45, 0), 1.0f);
     }
 
     public Camera(Vector3f position, Vector3f rotation) {
+        this(position, rotation, 1.0f);
+    }
+
+    public Camera(Vector3f position, Vector3f rotation, float zoom) {
         this.position = position;
         this.rotation = rotation;
+        this.zoom = zoom;
     }
 
     public Vector3f getPosition() {
@@ -26,6 +32,10 @@ public class Camera {
         position.x = x;
         position.y = y;
         position.z = z;
+    }
+
+    public float getZoom() {
+        return zoom;
     }
 
     public void movePosition(float offsetX, float offsetY, float offsetZ) {
@@ -54,6 +64,10 @@ public class Camera {
         rotation.x += offsetX;
         rotation.y += offsetY;
         rotation.z += offsetZ;
+    }
+
+    public void addZoom(float zoom) {
+        this.zoom += zoom;
     }
 }
 
