@@ -1,9 +1,8 @@
 package me.petrolingus.modsys.twosourceinterference;
 
-import me.petrolingus.modsys.twosourceinterference.utils.ShaderProgram;
-import me.petrolingus.modsys.twosourceinterference.utils.ShaderProgramV2;
-import me.petrolingus.modsys.twosourceinterference.utils.Utils;
+import me.petrolingus.modsys.twosourceinterference.utils.*;
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
@@ -21,7 +20,13 @@ import static org.lwjgl.system.MemoryUtil.*;
 
 public class LwjglApplication {
 
-    private long window;
+    private static long window;
+
+    private static final float CAMERA_POS_STEP = 0.05f;
+    private static final float MOUSE_SENSITIVITY = 0.2f;
+    private static Vector3f cameraInc = new Vector3f();
+    private static Camera camera = new Camera();
+    private static MouseInput mouseInput = new MouseInput();
 
     public void run() throws Exception {
         init();
@@ -50,7 +55,7 @@ public class LwjglApplication {
         glfwWindowHint(GLFW_SAMPLES, 4);
 
         // Create the window
-        window = glfwCreateWindow(800, 800, "Hello World!", NULL, NULL);
+        window = glfwCreateWindow(1200, 1200, "Hello World!", NULL, NULL);
         if (window == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
 
@@ -86,6 +91,9 @@ public class LwjglApplication {
 
         // Make the window visible
         glfwShowWindow(window);
+
+        mouseInput.init(window);
+        camera.setPosition(2, 2, 2);
     }
 
     private void loop() throws Exception {
@@ -102,37 +110,31 @@ public class LwjglApplication {
 
         GL11.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
-//        Matrix4f projectionMatrix = new Matrix4f().setPerspective(
-//                (float) Math.toRadians(60.0f),
-//                (float) 800 / 800,
-//                0.01f,
-//                1000.f);
+        Matrix4f projectionMatrix = new Matrix4f().setPerspective(
+                (float) Math.toRadians(60.0f),
+                (float) 800 / 800,
+                0.01f,
+                1000.f);
 
-        Matrix4f projectionMatrix = new Matrix4f().setOrtho(-2f, 2f, -2f, 2f, 0.01f, 1000.f);
+//        Matrix4f projectionMatrix = new Matrix4f().setOrtho(-2f, 2f, -2f, 2f, 0.01f, 1000.f);
 
-        double rotationX = 35;
-        double rotationY = -45;
-        float cameraPosX = 1;
-        float cameraPosY = 0;
-        float cameraPosZ = 0;
-
-        // Top View
-//        rotationX = 90;
-//        rotationY = 0;
-//        cameraPosX = 0;
-//        cameraPosY = 1;
-//        cameraPosZ = 0;
 
         float t = 0;
 
-        Vector3f origin = new Vector3f(0, 0, 0);
-        Vector3f up = new Vector3f(0, 1, 0);
+        Mesh mesh = OBJLoader.loadMesh("/models/plane16x16.obj");
+
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        GL11.glEnable(GL_STENCIL_TEST);
+        GL11.glEnable(GL11.GL_CULL_FACE);
+        GL11.glFrontFace(GL11.GL_CCW);
 
         while (!glfwWindowShouldClose(window)) {
 
-            t += 0.01f;
+            input();
 
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            t += 0.05f;
+
+            GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
 
 //            Matrix4f viewMatrix = new Matrix4f()
 //                    .identity()
@@ -140,48 +142,20 @@ public class LwjglApplication {
 //                    .rotate((float) Math.toRadians(rotationY), new Vector3f(0, 1, 0))
 //                    .translate(-cameraPosX, -cameraPosY, -cameraPosZ);
 
-            Matrix4f viewMatrix = new Matrix4f().setLookAt(new Vector3f(cameraPosX, cameraPosY, cameraPosZ), origin, up);
-            cameraPosX = (float) Math.cos(0.1 * t);
-            cameraPosZ = (float) Math.sin(0.1 * t);
+//            Matrix4f viewMatrix = new Matrix4f().setLookAt(new Vector3f(cameraPosX, cameraPosY, cameraPosZ), origin, up);
+////            cameraPosX = (float) Math.cos(0.1 * t);
+////            cameraPosZ = (float) Math.sin(0.1 * t);
+
+            // Update view Matrix
+            Matrix4f viewMatrix = getViewMatrix(camera);
 
             shaderProgram.bind();
             {
                 shaderProgram.setUniform("projectionMatrix", projectionMatrix);
                 shaderProgram.setUniform("modelViewMatrix", viewMatrix);
                 shaderProgram.setUniform("iGlobalTime", t);
-                int n = 128;
-                float step = 2.0f / (n - 1);
-                for (int i = 0; i < n; i++) {
-                    float posY = -1 + i * step;
-                    for (int j = 0; j < n; j++) {
-                        float posX = -1 + j * step;
-                        glBegin(GL_POLYGON);
-                        {
-                            glVertex3f(posX, 0.0f, posY);
-                            glVertex3f(posX + step, 0.0f, posY);
-
-                            glVertex3f(posX + step, 0.0f, posY);
-                            glVertex3f(posX + step, 0.0f, posY + step);
-
-                            glVertex3f(posX + step, 0.0f, posY + step);
-                            glVertex3f(posX, 0.0f, posY + step);
-
-                            glVertex3f(posX, 0.0f, posY + step);
-                            glVertex3f(posX, 0.0f, posY);
-                        }
-                        glEnd();
-                    }
-//
-//                    glBegin(GL_LINE_STRIP);
-//                    {
-//                        glVertex3f(pos, 0.0f, -1.0f);
-//                        glVertex3f(pos, 0.0f, 1.0f);
-//                    }
-//                    glEnd();
-                }
+                mesh.render();
             }
-
-
             shaderProgram.unbind();
 
             glfwSwapBuffers(window);
@@ -189,6 +163,51 @@ public class LwjglApplication {
             glfwPollEvents();
         }
     }
+
+    private static void input() {
+
+        mouseInput.input();
+
+        // Input
+        cameraInc.set(0, 0, 0);
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+            cameraInc.z = -1;
+        } else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+            cameraInc.z = 1;
+        }
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+            cameraInc.x = -1;
+        } else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+            cameraInc.x = 1;
+        }
+        if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
+            cameraInc.y = -1;
+        } else if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
+            cameraInc.y = 1;
+        }
+
+        // Update camera position
+        camera.movePosition(cameraInc.x * CAMERA_POS_STEP, cameraInc.y * CAMERA_POS_STEP, cameraInc.z * CAMERA_POS_STEP);
+
+        // Update camera based on mouse
+        if (mouseInput.isRightButtonPressed()) {
+            Vector2f rotVec = mouseInput.getDisplVec();
+            camera.moveRotation(rotVec.x * MOUSE_SENSITIVITY, rotVec.y * MOUSE_SENSITIVITY, 0);
+        }
+    }
+
+    private static Matrix4f getViewMatrix(Camera camera) {
+
+        Vector3f cameraPos = camera.getPosition();
+        Vector3f rotation = camera.getRotation();
+
+        return new Matrix4f()
+                .identity()
+                .rotate((float) Math.toRadians(rotation.x), new Vector3f(1, 0, 0))
+                .rotate((float) Math.toRadians(rotation.y), new Vector3f(0, 1, 0))
+                .translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+    }
+
 
     public static void main(String[] args) throws Exception {
         new LwjglApplication().run();
