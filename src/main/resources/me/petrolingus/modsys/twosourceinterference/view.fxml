@@ -10,12 +10,12 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-
 <HBox spacing="10.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.petrolingus.modsys.twosourceinterference.Controller">
    <children>
       <VBox prefWidth="300.0" spacing="7.0">
          <children>
-            <TitledPane animated="false" text="Источник А">
+            <Button fx:id="button" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onButtonClick" text="Button" />
+            <TitledPane animated="false" collapsible="false" text="Источник А">
                <content>
                   <VBox spacing="5.0">
                      <children>
@@ -47,7 +47,7 @@
                   </VBox>
                </content>
             </TitledPane>
-            <TitledPane animated="false" text="untitled">
+            <TitledPane animated="false" collapsible="false" text="untitled">
                <content>
                   <VBox spacing="5.0">
                      <children>
@@ -79,8 +79,7 @@
                   </VBox>
                </content>
             </TitledPane>
-            <Slider fx:id="distanceSlider" blockIncrement="25.0" majorTickUnit="100.0" max="300.0" showTickLabels="true" showTickMarks="true" value="225.0" />
-            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onButtonClick" text="Button" />
+            <Slider fx:id="distanceSlider" blockIncrement="0.01" majorTickUnit="0.5" max="3.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" value="0.5" />
          </children>
          <HBox.margin>
             <Insets />

@@ -2,6 +2,7 @@ package me.petrolingus.modsys.twosourceinterference;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 
@@ -21,17 +22,40 @@ public class Controller {
 
     public Slider distanceSlider;
 
+    public Button button;
+
 
     public Canvas canvas;
 
     private Service service;
 
-    public void initialize() {
+    private Service3d service3d;
+
+    private LwjglApplication lwjglApplication;
+
+    public void initialize() throws Exception {
+
+        button.requestFocus();
+
+        lwjglApplication = new LwjglApplication();
+        LwjglApplication.canvas = canvas;
+
+        new Thread(() -> {
+            try {
+                lwjglApplication.run();
+            } catch (Exception e) {
+                throw new RuntimeException("Lwjgl application interrupted", e);
+            }
+        }).start();
 
         service = new Service(canvas);
+        service3d = new Service3d(canvas);
 
         service.setDistance(distanceSlider.getValue());
-        distanceSlider.valueProperty().addListener((observable, oldValue, newValue) -> service.setDistance(newValue.doubleValue()));
+        distanceSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            service.setDistance(newValue.doubleValue());
+            lwjglApplication.setBetween(newValue.floatValue());
+        });
 
         setup(aAmplitudeText, service::setAmplitudeA);
         setup(aCyclicFrequencyText, service::setCyclicFrequencyA);
@@ -48,7 +72,13 @@ public class Controller {
     }
 
     public void onButtonClick() {
-        service.start();
+//        try {
+//            lwjglApplication.run();
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//        service.start();
+        service3d.start();
     }
 
     private void setup(TextField textField, Consumer<Double> function) {

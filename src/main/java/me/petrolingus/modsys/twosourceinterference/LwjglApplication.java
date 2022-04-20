@@ -1,5 +1,12 @@
 package me.petrolingus.modsys.twosourceinterference;
 
+import javafx.application.Platform;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.PixelFormat;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Color;
 import me.petrolingus.modsys.twosourceinterference.utils.*;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -9,8 +16,14 @@ import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.nio.*;
 import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
@@ -20,13 +33,22 @@ import static org.lwjgl.system.MemoryUtil.*;
 
 public class LwjglApplication {
 
-    private static long window;
+    public static long window;
+
 
     private static final float CAMERA_POS_STEP = 0.05f;
     private static final float MOUSE_SENSITIVITY = 0.2f;
     private final static Vector3f cameraInc = new Vector3f();
     private final static Camera camera = new Camera();
     private final static MouseInput mouseInput = new MouseInput();
+
+    public static Canvas canvas;
+    private static final int width = 800;
+    private static final int height = 800;// Assuming a 32-bit display with a byte each for red, green, blue, and alpha.
+    private static final int bpp = 4;
+    private static final int whb = width * height * bpp;
+    public static ByteBuffer buffer  = BufferUtils.createByteBuffer(whb);;
+    private float between;
 
     public void run() throws Exception {
         init();
@@ -55,7 +77,7 @@ public class LwjglApplication {
         glfwWindowHint(GLFW_SAMPLES, 4);
 
         // Create the window
-        window = glfwCreateWindow(1200, 1200, "Hello World!", NULL, NULL);
+        window = glfwCreateWindow(800, 800, "Hello World!", NULL, NULL);
         if (window == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
 
@@ -90,13 +112,16 @@ public class LwjglApplication {
         glfwSwapInterval(1);
 
         // Make the window visible
-        glfwShowWindow(window);
+        glfwHideWindow(window);
 
         mouseInput.init(window);
         camera.setPosition(2, 2, 2);
     }
 
     private void loop() throws Exception {
+
+//        Service3d service3d = new Service3d(canvas);
+//        service3d.start();
 
         GL.createCapabilities();
 
@@ -107,6 +132,7 @@ public class LwjglApplication {
         shaderProgram.createUniform("projectionMatrix");
         shaderProgram.createUniform("modelViewMatrix");
         shaderProgram.createUniform("iGlobalTime");
+        shaderProgram.createUniform("between");
 
         GL11.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 
@@ -134,7 +160,7 @@ public class LwjglApplication {
 
             t += 0.05f;
 
-            GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
+            GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 //            Matrix4f viewMatrix = new Matrix4f()
 //                    .identity()
@@ -154,14 +180,20 @@ public class LwjglApplication {
                 shaderProgram.setUniform("projectionMatrix", projectionMatrix);
                 shaderProgram.setUniform("modelViewMatrix", viewMatrix);
                 shaderProgram.setUniform("iGlobalTime", t);
+                shaderProgram.setUniform("between", between);
                 mesh.render();
             }
             shaderProgram.unbind();
 
-            glfwSwapBuffers(window);
+            GL11.glReadBuffer(GL_FRONT_AND_BACK);
+//            buffer = BufferUtils.createByteBuffer(whb);
+            GL11.glReadPixels(0, 0, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
 
+            glfwSwapBuffers(window);
             glfwPollEvents();
         }
+
+//        service3d.cancel();
     }
 
     private static void input() {
@@ -211,9 +243,11 @@ public class LwjglApplication {
                 .scale(cameraZoom);
     }
 
-
     public static void main(String[] args) throws Exception {
         new LwjglApplication().run();
     }
 
+    public void setBetween(float value) {
+        between = value;
+    }
 }

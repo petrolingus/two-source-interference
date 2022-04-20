@@ -5,6 +5,7 @@ layout (location=0) in vec3 position;
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
 uniform float iGlobalTime;
+uniform float between;
 
 out float height;
 
@@ -20,7 +21,6 @@ void main()
     float wavelength = 0.1;
     float initialPhase = 0;
     float k = (2 * 3.141592653589793) / wavelength;
-    float between = 0.5;
 
     float r1 = distance(vec2(position.x, position.z), vec2(-between/2, 0));
     float phi1 = cyclicFrequency * iGlobalTime - k * r1 + initialPhase;
