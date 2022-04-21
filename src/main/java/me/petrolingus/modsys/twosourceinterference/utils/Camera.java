@@ -1,5 +1,6 @@
 package me.petrolingus.modsys.twosourceinterference.utils;
 
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 public class Camera {
@@ -8,21 +9,15 @@ public class Camera {
 
     private final Vector3f rotation;
 
-    private float zoom;
-
     public Camera() {
-        this(new Vector3f(0, 0, 0), new Vector3f(33, -45, 0), 1.0f);
+        this(new Vector3f(0, 0, 0), new Vector3f(0, 0, 0));
     }
 
     public Camera(Vector3f position, Vector3f rotation) {
-        this(position, rotation, 1.0f);
-    }
-
-    public Camera(Vector3f position, Vector3f rotation, float zoom) {
         this.position = position;
         this.rotation = rotation;
-        this.zoom = zoom;
     }
+
 
     public Vector3f getPosition() {
         return position;
@@ -34,18 +29,14 @@ public class Camera {
         position.z = z;
     }
 
-    public float getZoom() {
-        return zoom;
-    }
-
     public void movePosition(float offsetX, float offsetY, float offsetZ) {
-        if ( offsetZ != 0 ) {
-            position.x += (float)Math.sin(Math.toRadians(rotation.y)) * -1.0f * offsetZ;
-            position.z += (float)Math.cos(Math.toRadians(rotation.y)) * offsetZ;
+        if (offsetZ != 0) {
+            position.x += (float) Math.sin(Math.toRadians(rotation.y)) * -1.0f * offsetZ;
+            position.z += (float) Math.cos(Math.toRadians(rotation.y)) * offsetZ;
         }
-        if ( offsetX != 0) {
-            position.x += (float)Math.sin(Math.toRadians(rotation.y - 90)) * -1.0f * offsetX;
-            position.z += (float)Math.cos(Math.toRadians(rotation.y - 90)) * offsetX;
+        if (offsetX != 0) {
+            position.x += (float) Math.sin(Math.toRadians(rotation.y - 90)) * -1.0f * offsetX;
+            position.z += (float) Math.cos(Math.toRadians(rotation.y - 90)) * offsetX;
         }
         position.y += offsetY;
     }
@@ -66,8 +57,12 @@ public class Camera {
         rotation.z += offsetZ;
     }
 
-    public void addZoom(float zoom) {
-        this.zoom += zoom;
+    public Matrix4f getViewMatrix() {
+        return new Matrix4f()
+                .identity()
+                .rotate((float) Math.toRadians(rotation.x), new Vector3f(1, 0, 0))
+                .rotate((float) Math.toRadians(rotation.y), new Vector3f(0, 1, 0))
+                .translate(-position.x, -position.y, -position.z);
     }
 }
 
