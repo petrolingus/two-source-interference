@@ -2,6 +2,7 @@ package me.petrolingus.modsys.twosourceinterference.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -29,9 +30,9 @@ public class OBJLoader {
                     break;
                 case "vt":
                     // Texture coordinate
-                    Vector2f vec2f = new Vector2f(
-                            Float.parseFloat(tokens[1]),
-                            Float.parseFloat(tokens[2]));
+                    float x = ThreadLocalRandom.current().nextFloat();
+                    float y = ThreadLocalRandom.current().nextFloat();
+                    Vector2f vec2f = new Vector2f(x, y);
                     textures.add(vec2f);
                     break;
                 case "vn":
@@ -51,6 +52,12 @@ public class OBJLoader {
                     break;
             }
         }
+
+        System.out.println("vertices: " + vertices.size());
+        System.out.println("textures: " + textures.size());
+        System.out.println("normals: " + normals.size());
+        System.out.println("faces: " + faces.size());
+
         return reorderLists(vertices, textures, normals, faces);
     }
 

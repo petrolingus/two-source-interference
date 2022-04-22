@@ -1,6 +1,15 @@
 #version 330
 
-in float height;
+in vec2 pixelPos;
+in float pixelHeight;
+
+uniform float iGlobalTime;
+uniform float timeMul;
+uniform float amplitude;
+uniform float wavelength;
+uniform float cyclicFrequency;
+uniform float initialPhase;
+uniform float between;
 
 out vec4 fragColor;
 
@@ -18,8 +27,29 @@ float valueMapper(float value, float min, float max)
 
 void main()
 {
-    vec3 red = vec3(1.0, 0.0, 0.0) * (height * 8);
-    vec3 blue = vec3(0.0, 0.9, 0.9) * (1 - height * 8);
-    vec3 color = blue + red;
+    //    float amplitude = 10;
+    //    float cyclicFrequency = 1;
+    //    float wavelength = 100;
+    //    float initialPhase = 0;
+    //    float between = 200;
+
+    float k = (2 * 3.141592653589793) / wavelength;
+    float pos = sqrt(between * between / 2);
+    float t = iGlobalTime * timeMul;
+
+    float r1 = distance(pixelPos, vec2(pos, -pos));
+    float ampl1 = amplitude / r1;
+    float value1 = ampl1 * sin(cyclicFrequency * t - k * r1 + initialPhase);
+
+    float r2 = distance(pixelPos, vec2(-pos, pos));
+    float ampl2 = amplitude / r2;
+    float value2 = ampl2 * sin(cyclicFrequency * t - k * r2 + initialPhase);
+
+    float amplSum = ampl1 + ampl2;
+    float value = valueMapper(value1 + value2, -amplSum, amplSum);
+
+    float hue = (0.66666666666 - 0.66666666666 * value) * 1 + clamp(pixelHeight, 0, 1) * 0;
+    vec3 color = hsv2rgb(vec3(hue, 1.0, 1.0));
+//    vec3 color = mix(vec3(0, 0.9, 0.9), vec3(1.0, 0, 0), hue);
     fragColor = vec4(color, 1.0);
 }

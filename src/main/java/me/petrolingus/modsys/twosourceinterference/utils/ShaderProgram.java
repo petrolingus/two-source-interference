@@ -2,6 +2,7 @@ package me.petrolingus.modsys.twosourceinterference.utils;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryStack;
 
@@ -87,6 +88,10 @@ public class ShaderProgram {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             GL30.glUniformMatrix4fv(uniforms.get(uniformName), false, value.get(stack.mallocFloat(16)));
         }
+    }
+
+    public void setUniform(String uniformName, float[] value) {
+        glUniform1fv(uniforms.get(uniformName), value);
     }
 
     public void bind() {

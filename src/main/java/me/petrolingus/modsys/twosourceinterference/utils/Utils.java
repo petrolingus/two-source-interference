@@ -12,6 +12,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Utils {
 
@@ -20,6 +22,14 @@ public class Utils {
             URI resource = Objects.requireNonNull(LwjglApplication.class.getResource("shaders/" + shaderName)).toURI();
             return String.join("\n", Files.readAllLines(Paths.get(Objects.requireNonNull(resource))));
         } catch (IOException | URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String loadShaderV2(String shaderName) {
+        try (Stream<String> stringStream = Files.lines(Paths.get(shaderName))) {
+            return stringStream.collect(Collectors.joining("\n"));
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -33,6 +43,10 @@ public class Utils {
             }
         }
         return list;
+    }
+
+    public static double valueMapper(double value, double min, double max) {
+        return ((value - min) / (max - min));
     }
 
 }
