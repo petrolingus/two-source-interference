@@ -36,18 +36,9 @@ void main()
     float ampl2 = amplitude / r2;
     float value2 = ampl2 * sin(cyclicFrequency * t - k * r2 + initialPhase);
 
-    float amplSum = ampl1 + ampl2;
-//    float value = valueMapper(value1 + value2, -amplSum, amplSum);
-    float value = clamp(value1 + value2, -0.5, 1) * 0;
+    float value = clamp(value1 + value2, -0.5, 1);
 
-    int indexX = int(800 * (position.x + 1.0) / 2.0);
-//    int indexY = int((position.z + 1.0) / 2.0);
-//    int index = 800 * indexY + indexX;
-//    float deltaH = heightArray[indexX];
-
-//    float deltaH = temp.x;
-//    float yValue = clamp(position.y, -0.5, 1) + value;
-    float yValue = clamp(position.y + value, -1, 1);
+    float yValue = clamp(position.y, 0, 0.4) * 1 + value * 0;
 
 	vec4 mvPos = viewMatrix * vec4(position.x, yValue, position.z, 1.0);
     gl_Position = projectionMatrix * mvPos;

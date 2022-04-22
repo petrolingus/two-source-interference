@@ -126,6 +126,9 @@ public class LwjglApplication {
         shaderProgram.createUniform("initialPhase");
         shaderProgram.createUniform("between");
         shaderProgram.createUniform("timeMul");
+        shaderProgram.createUniform("colorDelimiter");
+        shaderProgram.createUniform("minColor");
+        shaderProgram.createUniform("maxColor");
 
         // Create mesh of plane
         Mesh mesh = OBJLoader.loadMesh("/models/plane.obj");
@@ -223,6 +226,12 @@ public class LwjglApplication {
                 shaderProgram.setUniform("cyclicFrequency", cyclicFrequency);
                 shaderProgram.setUniform("initialPhase", initialPhase);
                 shaderProgram.setUniform("between", between);
+
+                shaderProgram.setUniform("minColor", minColor);
+                shaderProgram.setUniform("maxColor", maxColor);
+                shaderProgram.setUniform("colorDelimiter", colorDelimiter);
+
+
                 mesh.render();
             }
             shaderProgram.unbind();
