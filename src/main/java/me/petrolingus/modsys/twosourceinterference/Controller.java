@@ -6,6 +6,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import me.petrolingus.modsys.twosourceinterference.servce.AlgorithmService;
 import me.petrolingus.modsys.twosourceinterference.utils.MouseInput;
 import org.joml.Vector3f;
 
@@ -47,9 +48,12 @@ public class Controller {
     public void initialize() {
 
         lwjglApplication = new LwjglApplication();
-        LwjglApplication.canvas = canvas;
+//        LwjglApplication.canvas = canvas;
 
-        service3d = new CanvasUpdateService(canvas);
+//        service3d = new CanvasUpdateService(canvas);
+
+        AlgorithmService service = new AlgorithmService(canvas);
+        service.start();
 
         // Text fields setup
         setup(aAmplitudeText, lwjglApplication::setAmplitude);
@@ -95,15 +99,15 @@ public class Controller {
             event.consume();
         });
 
-        new Thread(() -> {
-            try {
-                lwjglApplication.run();
-            } catch (Exception e) {
-                throw new RuntimeException("Lwjgl application interrupted", e);
-            }
-        }).start();
+//        new Thread(() -> {
+//            try {
+//                lwjglApplication.run();
+//            } catch (Exception e) {
+//                throw new RuntimeException("Lwjgl application interrupted", e);
+//            }
+//        }).start();
 
-        onButtonClick();
+//        onButtonClick();
     }
 
     public void onButtonClick() {

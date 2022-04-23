@@ -10,6 +10,7 @@ public class Application extends javafx.application.Application {
         FXMLLoader fxmlLoader = new FXMLLoader(Application.class.getResource("view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("TSI");
+        stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
         stage.showingProperty().addListener((observable, oldValue, newValue) -> {
