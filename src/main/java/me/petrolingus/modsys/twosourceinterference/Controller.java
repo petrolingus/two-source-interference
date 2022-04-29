@@ -41,19 +41,12 @@ public class Controller {
     // View
     public Canvas canvas;
 
-    private CanvasUpdateService service3d;
-
     private LwjglApplication lwjglApplication;
 
     public void initialize() {
 
         lwjglApplication = new LwjglApplication();
-//        LwjglApplication.canvas = canvas;
-
-//        service3d = new CanvasUpdateService(canvas);
-
-        AlgorithmService service = new AlgorithmService(canvas);
-        service.start();
+        LwjglApplication.canvas = canvas;
 
         // Text fields setup
         setup(aAmplitudeText, lwjglApplication::setAmplitude);
@@ -99,6 +92,7 @@ public class Controller {
             event.consume();
         });
 
+        // Old algorithm
 //        new Thread(() -> {
 //            try {
 //                lwjglApplication.run();
@@ -106,12 +100,16 @@ public class Controller {
 //                throw new RuntimeException("Lwjgl application interrupted", e);
 //            }
 //        }).start();
+//        CanvasUpdateService service3d = new CanvasUpdateService(canvas);
+//        service3d.start();
 
-//        onButtonClick();
+        // New algorithm
+        AlgorithmService service = new AlgorithmService(canvas);
+        service.start();
     }
 
     public void onButtonClick() {
-        service3d.start();
+//        service3d.start();
     }
 
     private void setupColorPicker(ColorPicker colorPicker, Consumer<Vector3f> function) {

@@ -62,6 +62,8 @@ public class AlgorithmService extends Service<Void> {
 
                 while (!isCancelled()) {
 
+                    data = algorithm.getFieldValues();
+
                     for (int i = 0; i < height; i++) {
                         for (int j = 0; j < width; j++) {
                             Color c = Color.hsb(data[i/(width/n)][j/(height/n)], 1.0, 1.0);
