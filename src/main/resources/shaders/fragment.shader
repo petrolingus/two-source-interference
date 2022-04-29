@@ -76,12 +76,12 @@ void main()
     vec3 maxC = rgb2hsv(maxColor);
     vec3 minC = rgb2hsv(minColor);
 
-    vec3 color = hsv2rgb(vec3(minC.x, 1.0, 1 - hue)) + hsv2rgb(vec3(maxC.x, 1.0, 1 - hue));
-    //    vec3 color = mix(hsv2rgb(vec3(minC.x, 1.0, 1 - hue)), hsv2rgb(vec3(maxC.x, 1.0, 1 - hue)), 1 - hue);
-    //    vec3 color = mix(hsv2rgb(vec3(0.67, 1, 1)), hsv2rgb(vec3(0, 1, 1)), 1 - hue);
+    //    vec3 color = hsv2rgb(vec3(minC.x, 1.0, 1 - hue)) + hsv2rgb(vec3(maxC.x, 1.0, 1 - hue));
+    //        vec3 color = mix(hsv2rgb(vec3(minC.x, 1.0, 1 - hue)), hsv2rgb(vec3(maxC.x, 1.0, 1 - hue)), 1 - hue);
+    //            vec3 color = mix(hsv2rgb(vec3(0.67, 1, 1)), hsv2rgb(vec3(0, 1, 1)), 1 - hue);
     //    vec3 color = mix(minColor, maxColor, 1 - hue);
 
-    //    vec3 color = hsv2rgb(vec3(0, 1, 1 - hue)) + hsv2rgb(vec3(0.67, 1, 0.33 + hue));
+    vec3 color = hsv2rgb(vec3(0, 1, 1 - hue)) + hsv2rgb(vec3(0.67, 1, 0.33 + hue)) + maxC * 0 + minC * 0;
 
     fragColor = vec4(color, 1.0);
 }
