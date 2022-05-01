@@ -23,13 +23,14 @@ public class Algorithm {
     public Algorithm(int n) {
         this.n = n;
         system = new Cell[2][n][n];
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < 2; i++) {
             for (int j = 0; j < n; j++) {
-                if (i == n / 2 && j == n / 2) {
-                    double Ex1 = 100;
-                    system[0][i][j] = new Cell(Ex1, 0, 0, 0, 0, 0, 0);
-                } else {
-                    system[0][i][j] = new Cell(0, 0, 0, 0, 0, 0, 0);
+                for (int k = 0; k < n; k++) {
+                    if (j > 3 && j < n - 4 && k > 3 && k < n - 4) {
+                        system[i][j][k] = new Cell(0, 0, 0, Cell.Type.MAIN);
+                    } else {
+                        system[i][j][k] = new Cell(0, 0, 0, Cell.Type.BORDER);
+                    }
                 }
             }
         }
@@ -39,13 +40,20 @@ public class Algorithm {
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                double prevHz = system[0][i][j].Hz;
-                double prevEx1 = system[0][i][j].Ex1;
-                double prevEx2 = system[0][i][j].Ex2;
-                double prevEy1 = system[0][i][j].Ey1;
-                double prevEy2 = system[0][i][j].Ey2;
-                system[1][i][j].Hz = prevHz - (TAU / MU) * ((prevEy2 - prevEy1) / CELL_SIZE - (prevEx2 - prevEx1) / CELL_SIZE);
-                system[1][i][j].Ex1 = (C1 / C2) * prevEx1 + ((2 * TAU / EPSILON) / C2) * (0);
+
+                if (system[0][i][j].type.equals(Cell.Type.MAIN)) {
+
+                    system[1][i][j].Hz = system[0][i][j].Hz - (TAU / MU) * (
+                            (system[0][i + 1][j].Ey - system[0][i][j].Ey) / CELL_SIZE -
+                                    (system[0][i][j + 1].Ex - system[0][i][j].Ex) / CELL_SIZE);
+
+                    system[1][i][j].Ex = (C1 / C2) * system[0][i][j].Ex - ((TAU / EPSILON) / C2) * SIGMA * system[0][i][j].Ex +
+                            (2.0 * TAU * EPSILON / C2) * ((system[1][i][j].Hz -  system[1][i][j].Hz) / CELL_SIZE);
+
+//                system[1][i][j].Ex1 = (C1 / C2) * prevEx1 + ((2 * TAU / EPSILON) / C2) * (0);
+
+
+                }
             }
         }
 

@@ -29,10 +29,12 @@ public class AlgorithmService extends Service<Void> {
     protected Task<Void> createTask() {
         return new Task<>() {
             @Override
-            protected Void call() {
+            protected Void call() throws Exception {
 
                 int width = (int) canvas.getWidth();
                 int height = (int) canvas.getHeight();
+
+                System.out.println("Width: " + width);
 
                 int[] pixels = new int[width * height];
 
@@ -48,31 +50,47 @@ public class AlgorithmService extends Service<Void> {
                         g.drawImage(img, 0, 0);
                         g.strokeRect(0, 0, canvas.getWidth(), canvas.getWidth());
                     });
-                }, 1000, 16, TimeUnit.MILLISECONDS);
+                }, 0, 16, TimeUnit.MILLISECONDS);
 
-                int n = 10;
+                int n = 108;
                 double[][] data = new double[n][n];
+//                for (int i = 0; i < n; i++) {
+//                    for (int j = 0; j < n; j++) {
+//                        data[i][j] = 360 * ThreadLocalRandom.current().nextDouble();
+//                    }
+//                }
+
+                double[][] brightness = new double[n][n];
                 for (int i = 0; i < n; i++) {
                     for (int j = 0; j < n; j++) {
-                        data[i][j] = 360 * ThreadLocalRandom.current().nextDouble();
+                        brightness[i][j] = ThreadLocalRandom.current().nextDouble();
                     }
                 }
 
+                System.out.println("Algorithm was created");
                 Algorithm algorithm = new Algorithm(n);
 
                 while (!isCancelled()) {
 
                     data = algorithm.getFieldValues();
 
-                    for (int i = 0; i < height; i++) {
-                        for (int j = 0; j < width; j++) {
-                            Color c = Color.hsb(data[i/(width/n)][j/(height/n)], 1.0, 1.0);
-                            int r = (int) Math.round(c.getRed() * 255.0);
-                            int g = (int) Math.round(c.getGreen() * 255.0);
-                            int b = (int) Math.round(c.getBlue() * 255.0);
-                            int color = 0xFF << 24 | r << 16 | g << 8 | b;
-                            pixels[i * width + j] = color;
+                    try {
+                        for (int i = 0; i < height; i++) {
+                            for (int j = 0; j < width; j++) {
+
+                                int row = (int) Math.floor((double) i / ((double) width / n));
+                                int column = (int) Math.floor((double) j / ((double) height / n));
+
+                                Color c = Color.hsb(data[row][column], 1.0, brightness[row][column]);
+                                int r = (int) Math.round(c.getRed() * 255.0);
+                                int g = (int) Math.round(c.getGreen() * 255.0);
+                                int b = (int) Math.round(c.getBlue() * 255.0);
+                                int color = 0xFF << 24 | r << 16 | g << 8 | b;
+                                pixels[i * width + j] = color;
+                            }
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
 
                     pw.setPixels(0, 0, width, height, PixelFormat.getIntArgbInstance(), pixels, 0, width);
