@@ -1,68 +1,97 @@
 package me.petrolingus.modsys.twosourceinterference.core;
 
-import java.util.concurrent.ThreadLocalRandom;
+import me.petrolingus.modsys.twosourceinterference.core.cell.*;
 
 public class Algorithm {
 
-    private static final double SIGMA = 1;
-    private static final double MAX_SIMULATION_TIME = 1;
-    private static final double TAU = 0.1;
+    private double time;
 
-    public static final double C = 299792458; // m/s
-    public static final double EPSILON = 1.25663706e-6;
-    public static final double MU = 8.85418782e-12;
-    public static final double CELL_SIZE = 1;
+    private final Cell[][][] system;
 
-    public static final double C0 = SIGMA * TAU / (2 * EPSILON);
-    public static final double C1 = 1.0 - SIGMA * TAU / (2 * EPSILON);
-    public static final double C2 = 1.0 + SIGMA * TAU / (2 * EPSILON);
+    public Algorithm() {
 
-    int n = 0;
-    Cell[][][] system;
+        // Create system array
+        system = new Cell[2][Constants.SIZE][Constants.SIZE];
 
-    public Algorithm(int n) {
-        this.n = n;
-        system = new Cell[2][n][n];
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < n; j++) {
-                for (int k = 0; k < n; k++) {
-                    if (j > 3 && j < n - 4 && k > 3 && k < n - 4) {
-                        system[i][j][k] = new Cell(0, 0, 0, Cell.Type.MAIN);
-                    } else {
-                        system[i][j][k] = new Cell(0, 0, 0, Cell.Type.BORDER);
-                    }
+        // Generate main cells
+        for (int i = Constants.D; i < Constants.SIZE - Constants.D; i++) {
+            for (int j = Constants.D; j < Constants.SIZE - Constants.D; j++) {
+                system[0][i][j] = new MainCell();
+                system[1][i][j] = new MainCell();
+            }
+        }
+
+        // Generate border cells
+        for (int i = 1; i <= Constants.D; i++) {
+            for (int j = Constants.D - i; j < Constants.SIZE - Constants.D + i; j++) {
+                for (int k = Constants.D - i; k < Constants.SIZE - Constants.D + i; k++) {
+                    if (system[0][j][k] != null) continue;
+                    double sigma = Constants.SIGMA_MAX * Math.pow((double) i / Constants.D, Constants.N);
+                    double astra = sigma * Constants.MU / Constants.EPSILON;
+                    system[0][j][k] = new BorderCell(sigma, astra);
+                    system[1][j][k] = new BorderCell(sigma, astra);
                 }
             }
         }
+
+        // Generate source cell
+        system[0][Constants.SIZE / 2][Constants.SIZE / 2] = new SourceCell();
+//        system[1][Constants.SIZE / 2][Constants.SIZE / 2] = new SourceCell();
     }
 
-    private void calculate() {
+    public void calculate() {
 
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
+        time += Constants.TAU;
 
-                if (system[0][i][j].type.equals(Cell.Type.MAIN)) {
+        ((SourceCell) system[0][Constants.SIZE / 2][Constants.SIZE / 2]).generateNext(time);
 
-                    system[1][i][j].Hz = system[0][i][j].Hz - (TAU / MU) * (
-                            (system[0][i + 1][j].Ey - system[0][i][j].Ey) / CELL_SIZE -
-                                    (system[0][i][j + 1].Ex - system[0][i][j].Ex) / CELL_SIZE);
-
-                    system[1][i][j].Ex = (C1 / C2) * system[0][i][j].Ex - ((TAU / EPSILON) / C2) * SIGMA * system[0][i][j].Ex +
-                            (2.0 * TAU * EPSILON / C2) * ((system[1][i][j].Hz -  system[1][i][j].Hz) / CELL_SIZE);
-
-//                system[1][i][j].Ex1 = (C1 / C2) * prevEx1 + ((2 * TAU / EPSILON) / C2) * (0);
-
-
+        // Hz
+        for (int i = 0; i < Constants.SIZE; i++) {
+            for (int j = 0; j < Constants.SIZE; j++) {
+                if (system[0][i][j].cellType.equals(CellType.MAIN)) {
+                    double value1 = (system[0][i][j + 1].getEy() - system[0][i][j].getEy()) / Constants.STEP;
+                    double value2 = (system[0][i + 1][j].getEx() - system[0][i][j].getEx()) / Constants.STEP;
+                    double value3 = system[0][i][j].getHz() - Constants.C6 * (value1 - value2);
+                    system[1][i][j].setHz(value3);
                 }
             }
         }
 
+        // Ex
+        for (int i = 0; i < Constants.SIZE; i++) {
+            for (int j = 0; j < Constants.SIZE; j++) {
+                if (!system[0][i][j].cellType.equals(CellType.BORDER)) {
+                    double value1 = Constants.C3 * system[0][i][j].getEx();
+                    double value2 = Constants.C4 * Constants.SIGMA * system[0][i][j].getEx();
+                    double value3 = Constants.C5 * (system[1][i][j].getHz() - system[1][i - 1][j].getHz()) / (2.0 * Constants.STEP);
+                    double value4 = value1 - value2 + value3;
+                    system[1][i][j].setEx(value4);
+                }
+            }
+        }
+
+        // Ey
+        for (int i = 0; i < Constants.SIZE; i++) {
+            for (int j = 0; j < Constants.SIZE; j++) {
+                if (!system[0][i][j].cellType.equals(CellType.BORDER)) {
+                    double value1 = Constants.C3 * system[0][i][j].getEy();
+                    double value2 = Constants.C4 * Constants.SIGMA * system[0][i][j].getEy();
+                    double value3 = Constants.C5 * (system[1][i][j].getHz() - system[1][i][j - 1].getHz()) / (2.0 * Constants.STEP);
+                    double value4 = value1 - value2 - value3;
+                    system[1][i][j].setEy(value4);
+                }
+            }
+        }
+
+        for (int i = 0; i < Constants.SIZE; i++) {
+            System.arraycopy(system[1][i], 0, system[0][i], 0, Constants.SIZE);
+        }
     }
 
     public double[][] getFieldValues() {
-        double[][] data = new double[n][n];
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
+        double[][] data = new double[Constants.SIZE][Constants.SIZE];
+        for (int i = 0; i < Constants.SIZE; i++) {
+            for (int j = 0; j < Constants.SIZE; j++) {
                 data[i][j] = system[0][i][j].getValue();
             }
         }

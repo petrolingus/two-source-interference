@@ -10,11 +10,15 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import me.petrolingus.modsys.twosourceinterference.core.Algorithm;
+import me.petrolingus.modsys.twosourceinterference.core.Constants;
+import me.petrolingus.modsys.twosourceinterference.utils.Utils;
 
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 @SuppressWarnings("DuplicatedCode")
 public class AlgorithmService extends Service<Void> {
@@ -52,7 +56,7 @@ public class AlgorithmService extends Service<Void> {
                     });
                 }, 0, 16, TimeUnit.MILLISECONDS);
 
-                int n = 108;
+                int n = Constants.SIZE;
                 double[][] data = new double[n][n];
 //                for (int i = 0; i < n; i++) {
 //                    for (int j = 0; j < n; j++) {
@@ -68,11 +72,13 @@ public class AlgorithmService extends Service<Void> {
                 }
 
                 System.out.println("Algorithm was created");
-                Algorithm algorithm = new Algorithm(n);
+                Algorithm algorithm = new Algorithm();
 
                 while (!isCancelled()) {
 
                     data = algorithm.getFieldValues();
+                    algorithm.calculate();
+//                    System.out.println(Arrays.stream(data).flatMapToDouble(Arrays::stream).max().orElse(-1));
 
                     try {
                         for (int i = 0; i < height; i++) {
@@ -81,7 +87,7 @@ public class AlgorithmService extends Service<Void> {
                                 int row = (int) Math.floor((double) i / ((double) width / n));
                                 int column = (int) Math.floor((double) j / ((double) height / n));
 
-                                Color c = Color.hsb(data[row][column], 1.0, brightness[row][column]);
+                                Color c = Color.hsb(270 * Utils.valueMapper(data[row][column], 0, 1), 1.0, 1.0);
                                 int r = (int) Math.round(c.getRed() * 255.0);
                                 int g = (int) Math.round(c.getGreen() * 255.0);
                                 int b = (int) Math.round(c.getBlue() * 255.0);
@@ -95,6 +101,7 @@ public class AlgorithmService extends Service<Void> {
 
                     pw.setPixels(0, 0, width, height, PixelFormat.getIntArgbInstance(), pixels, 0, width);
 
+//                    Thread.sleep(100);
                 }
 
                 executor.shutdown();
