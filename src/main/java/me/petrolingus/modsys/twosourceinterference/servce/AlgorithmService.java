@@ -87,7 +87,7 @@ public class AlgorithmService extends Service<Void> {
                                 int row = (int) Math.floor((double) i / ((double) width / n));
                                 int column = (int) Math.floor((double) j / ((double) height / n));
 
-                                Color c = Color.hsb(270 * Utils.valueMapper(data[row][column], 0, 1), 1.0, 1.0);
+                                Color c = Color.hsb(data[row][column], 1.0, 1.0);
                                 int r = (int) Math.round(c.getRed() * 255.0);
                                 int g = (int) Math.round(c.getGreen() * 255.0);
                                 int b = (int) Math.round(c.getBlue() * 255.0);
@@ -101,7 +101,6 @@ public class AlgorithmService extends Service<Void> {
 
                     pw.setPixels(0, 0, width, height, PixelFormat.getIntArgbInstance(), pixels, 0, width);
 
-//                    Thread.sleep(100);
                 }
 
                 executor.shutdown();

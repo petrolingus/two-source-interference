@@ -36,7 +36,7 @@ public class Algorithm {
 
         // Generate source cell
         system[0][Constants.SIZE / 2][Constants.SIZE / 2] = new SourceCell();
-//        system[1][Constants.SIZE / 2][Constants.SIZE / 2] = new SourceCell();
+        system[1][Constants.SIZE / 2][Constants.SIZE / 2] = new SourceCell();
     }
 
     public void calculate() {
@@ -44,6 +44,7 @@ public class Algorithm {
         time += Constants.TAU;
 
         ((SourceCell) system[0][Constants.SIZE / 2][Constants.SIZE / 2]).generateNext(time);
+        ((SourceCell) system[1][Constants.SIZE / 2][Constants.SIZE / 2]).generateNext(time);
 
         // Hz
         for (int i = 0; i < Constants.SIZE; i++) {

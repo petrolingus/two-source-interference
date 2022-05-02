@@ -3,10 +3,10 @@ package me.petrolingus.modsys.twosourceinterference.core;
 public class Constants {
 
     // Vacuum permittivity (electric)
-    public static final double EPSILON = 8.8541878128e-12; //e-12
+    public static final double EPSILON = 8.8541878128; //e-12
 
     // Vacuum permeability (magnetic)
-    public static final double MU = 1.25663706212e-6; //e-6
+    public static final double MU = 1.25663706212; //e-6
 
     // Electrical resistance and conductance
     public static final double SIGMA = 1;
@@ -31,10 +31,10 @@ public class Constants {
     public static final int SIZE = SIDE + 2 * D;
 
     // Spatial step
-    public static final double STEP = 0.1;
+    public static final double STEP = 0.0001;
 
     // Time step
-    public static final double TAU = 0.1;
+    public static final double TAU = 0.00005;
 
 
     // Other

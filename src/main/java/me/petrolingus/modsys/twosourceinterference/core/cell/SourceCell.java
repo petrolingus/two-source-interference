@@ -49,10 +49,6 @@ public class SourceCell extends Cell {
     }
 
     public void generateNext(double t) {
-        hz = Math.sin(1000 * t) / (1 + Math.exp(-t + Math.PI));
-//        ex = Math.sin(0.01 * t) / (1 + Math.exp(-t + Math.PI));
-//        ey = Math.cos(0.01 *  t) / (1 + Math.exp(-t + Math.PI));
-//        ey = Math.cos(0.01 *  t) / (1 + Math.exp(-t + Math.PI));
-//        ex = Math.sin(t);
+        hz = 10000 * Math.sin(1000 * t) / (1 + Math.exp(-t + Math.PI));
     }
 }
