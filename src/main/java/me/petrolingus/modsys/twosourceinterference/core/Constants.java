@@ -45,6 +45,11 @@ public class Constants {
     public static final double C4 = (TAU / EPSILON) / C2;
     public static final double C5 = (2.0 * TAU / EPSILON) / C2;
     public static final double C6 = TAU / MU;
+    public static final double C7 = SIGMA * TAU / 2.0;
+    public static final double C8 = EPSILON - C7;
+    public static final double C9 = EPSILON + C7;
+    public static final double C10 = C8 / C9;
+    public static final double C11 = 2.0 * TAU / C9;
 
 
 }
