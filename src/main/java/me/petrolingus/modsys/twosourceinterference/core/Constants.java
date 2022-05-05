@@ -16,7 +16,7 @@ public class Constants {
     public static final double R = 10;
 
     // Absorbent layer thickness
-    public static final int D = 32;
+    public static final int D = 16;
 
     // Degree of absorbent layer
     public static final int N = 2;
@@ -34,7 +34,7 @@ public class Constants {
     public static final double STEP = 0.0001;
 
     // Time step
-    public static final double TAU = 0.1;
+    public static final double TAU = 0.7;
 
 
     // Other

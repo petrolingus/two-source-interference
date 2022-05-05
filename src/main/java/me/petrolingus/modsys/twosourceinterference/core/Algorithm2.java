@@ -4,9 +4,8 @@ public class Algorithm2 {
 
     int nwdth;
     int nhght;
-    Detector[] dats;
 
-    SourceType sourceType = SourceType.ONE;
+    SourceType sourceType = SourceType.TWO;
 
     public enum SourceType {
         ONE,
@@ -63,21 +62,15 @@ public class Algorithm2 {
     double[] fj2;
     double[] fj3;
     int l, ic, jc, nsteps, npml, istart, jstart, ifin, jfin;
-    double dt, T, epsz, pi, epsilon, sigma, eaf;
+    double dt, T, epsz, epsilon, sigma, eaf;
     double xn, xxn, xnum, xd, curl_e;
     double t0, spread, pulse;
     double tau, chi1, del_exp;
 
     public Algorithm2(double width, int nwidth, double height, int nheight, int npml) {
 
-        pi = Math.PI;
-        dats = new Detector[360];
-        for (int i = 0; i < 360; i++) {
-            Detector detector = new Detector();
-            detector.i = nwidth / 2 + (int) Math.round(100 * Math.cos(2 * pi * (double) i / (360.))); //TODO: WARN!
-            detector.j = nheight / 2 + (int) Math.round(100 * Math.sin(2 * pi * (double) i / (360.))); //TODO: WARN!
-            dats[i] = detector;
-        }
+        ddx = width / nwidth;
+        ddy = height / nheight;
 
         ic = nwidth / 2;
         jc = nheight / 2;
@@ -85,9 +78,6 @@ public class Algorithm2 {
         nhght = nheight;
         dt = ddx / 6e10; /* Time steps */
         epsz = 8.8e-12;
-
-        ddx = width / (double) nwidth;
-        ddy = height / (double) nheight;
 
         yee = new Cell[nwidth][nheight];
         ihx = new double[nwidth][nheight];
@@ -172,6 +162,7 @@ public class Algorithm2 {
             fj3[j] = (1.0 - xn) / (1.0 + xn);
             fj3[nheight - 2 - j] = (1.0 - xn) / (1.0 + xn);
         }
+
         istart = 0;
         jstart = 0;
         ifin = 0;
@@ -211,10 +202,10 @@ public class Algorithm2 {
         }
 
 //        pulse = (1.0 / (1.0 + Math.exp(-0.1 * (T - 50.0)))) * Math.sin(2 * Math.PI * 25000.0 * T);
-        pulse = (1.0 / (1.0 + Math.exp(-0.1 * (T - 50.0)))) * Math.sin(2 * Math.PI * 0.01 * T);
+        pulse = (1.0 / (1.0 + Math.exp(-0.1 * (T - 50.0)))) * Math.sin(2 * Math.PI * 0.05 * T);
 
         switch (sourceType) {
-            case ONE -> yee[(int) (0.5 * nwdth)][(int) (0.5 * nhght)].dz += pulse;
+            case ONE -> yee[(int) (0.5 * nwdth)][(int) (0.5 * nhght)].dz = pulse;
             case TWO -> {
                 yee[(int) (0.33 * nwdth)][(int) (0.33 * nhght)].dz += pulse;
                 yee[(int) (0.66 * nwdth)][(int) (0.66 * nhght)].dz += pulse;
@@ -267,9 +258,11 @@ public class Algorithm2 {
         double[][] data = new double[Constants.SIZE][Constants.SIZE];
         for (int i = 0; i < Constants.SIZE; i++) {
             for (int j = 0; j < Constants.SIZE; j++) {
-                double value =  yee[i][j].getValue() * 10000;
-                if (value > 270) {
-                    data[i][j] = 270;
+                int startAngle = 180;
+                double value =  yee[i][j].getValue() * 10000 + startAngle;
+                int max = 270 + startAngle;
+                if (value > max) {
+                    data[i][j] = max;
                 } else {
                     data[i][j] = value;
                 }

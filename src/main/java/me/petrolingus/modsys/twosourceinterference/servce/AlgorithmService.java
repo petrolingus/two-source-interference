@@ -83,7 +83,7 @@ public class AlgorithmService extends Service<Void> {
 //
                     algorithm2.GenNextStep(Constants.TAU);
                     data = algorithm2.getFieldValues();
-                    System.out.println(Arrays.stream(data).flatMapToDouble(Arrays::stream).max().orElse(-1));
+//                    System.out.println(Arrays.stream(data).flatMapToDouble(Arrays::stream).max().orElse(-1));
 
                     try {
                         for (int i = 0; i < height; i++) {
