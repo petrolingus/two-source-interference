@@ -39,15 +39,11 @@ public class Algorithm2 {
         public double ga;
         public double hx;
         public double hy;
-        public double getValue() {
-            return dz * ez / 2.0;
+        public Cell(double ga) {
+            this.ga = ga;
         }
-        public Cell() {
-            this.dz = 0;
-            this.ez = 0;
-            this.ga = 0;
-            this.hx = 0;
-            this.hy = 0;
+        public double getValue() {
+            return dz;
         }
     }
 
@@ -76,11 +72,7 @@ public class Algorithm2 {
 
         for (int j = 0; j < nHeight; j++) {
             for (int i = 0; i < nWidth; i++) {
-                yee[i][j] = new Cell();
-                yee[i][j].dz = 0.0;
-                yee[i][j].hx = 0.0;
-                yee[i][j].hy = 0.0;
-                yee[i][j].ga = 1.0;
+                yee[i][j] = new Cell(1.0);
                 ihx[i][j] = 0.0;
                 ihy[i][j] = 0.0;
             }
@@ -102,37 +94,51 @@ public class Algorithm2 {
             fj3[j] = 1.0;
         }
 
+        double alpha = 0.1;
+
         for (int i = 0; i < npml; i++) {
             double xnum = npml - i;
             double xxn = xnum / npml;
-            double xn = 0.25 * Math.pow(xxn, 3.0);
+            double xn = alpha * Math.pow(xxn, Constants.N);
+
             gi2[i] = 1.0 / (1.0 + xn);
             gi2[nWidth - 1 - i] = 1.0 / (1.0 + xn);
+
             gi3[i] = (1.0 - xn) / (1.0 + xn);
-            gi3[nWidth - i - 1] = (1.0 - xn) / (1.0 + xn);
-            xxn = (xnum - .5) / npml;
-            xn = 0.25 * Math.pow(xxn, 3.0);
+            gi3[nWidth - 1 - i] = (1.0 - xn) / (1.0 + xn);
+
+            xxn = (xnum - 0.5) / npml;
+            xn = alpha * Math.pow(xxn, Constants.N);
+
             fi1[i] = xn;
             fi1[nWidth - 2 - i] = xn;
+
             fi2[i] = 1.0 / (1.0 + xn);
             fi2[nWidth - 2 - i] = 1.0 / (1.0 + xn);
+
             fi3[i] = (1.0 - xn) / (1.0 + xn);
             fi3[nWidth - 2 - i] = (1.0 - xn) / (1.0 + xn);
         }
         for (int j = 0; j < npml; j++) {
             double xnum = npml - j;
             double xxn = xnum / npml;
-            double xn = 0.25 * Math.pow(xxn, 3.0);
+            double xn = alpha * Math.pow(xxn, Constants.N);
+
             gj2[j] = 1.0 / (1.0 + xn);
             gj2[nHeight - 1 - j] = 1.0 / (1.0 + xn);
+
             gj3[j] = (1.0 - xn) / (1.0 + xn);
             gj3[nHeight - j - 1] = (1.0 - xn) / (1.0 + xn);
-            xxn = (xnum - .5) / npml;
-            xn = 0.25 * Math.pow(xxn, 3.0);
+
+            xxn = (xnum - 0.5) / npml;
+            xn = alpha * Math.pow(xxn, Constants.N);
+
             fj1[j] = xn;
             fj1[nHeight - 2 - j] = xn;
+
             fj2[j] = 1.0 / (1.0 + xn);
             fj2[nHeight - 2 - j] = 1.0 / (1.0 + xn);
+
             fj3[j] = (1.0 - xn) / (1.0 + xn);
             fj3[nHeight - 2 - j] = (1.0 - xn) / (1.0 + xn);
         }
@@ -145,8 +151,8 @@ public class Algorithm2 {
         time = time + ddt;
 
         // Dz
-        for (int j = 1; j < nHeight; j++) {
-            for (int i = 1; i < nWidth; i++) {
+        for (int j = 1; j < nHeight - 1; j++) {
+            for (int i = 1; i < nWidth - 1; i++) {
                 double a = gi3[i] * gj3[j] * yee[i][j].dz;
                 yee[i][j].dz = a + gi2[i] * gj2[j] * ddt * (yee[i][j].hy - yee[i - 1][j].hy - yee[i][j].hx + yee[i][j - 1].hx);
             }
@@ -155,7 +161,7 @@ public class Algorithm2 {
         pulse = (1.0 / (1.0 + Math.exp(-0.1 * (time - 50.0)))) * Math.sin(2 * Math.PI * 0.05 * time);
 
         switch (sourceType) {
-            case ONE -> yee[(int) (0.5 * nWidth)][(int) (0.5 * nHeight)].dz += pulse;
+            case ONE -> yee[(int) (0.5 * nWidth)][(int) (0.5 * nHeight)].dz = pulse;
             case TWO -> {
                 yee[(int) (0.33 * nWidth)][(int) (0.33 * nHeight)].dz += pulse;
                 yee[(int) (0.66 * nWidth)][(int) (0.66 * nHeight)].dz += pulse;
@@ -209,7 +215,7 @@ public class Algorithm2 {
         for (int i = 0; i < Constants.SIZE; i++) {
             for (int j = 0; j < Constants.SIZE; j++) {
                 int startAngle = 180;
-                double value =  yee[i][j].getValue() * 10000 + startAngle;
+                double value =  yee[i][j].getValue() * 1000 + startAngle;
                 int max = 270 + startAngle;
                 if (value > max) {
                     data[i][j] = max;

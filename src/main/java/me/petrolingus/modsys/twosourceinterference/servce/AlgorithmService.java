@@ -92,7 +92,13 @@ public class AlgorithmService extends Service<Void> {
                                 int row = (int) Math.floor((double) i / ((double) width / n));
                                 int column = (int) Math.floor((double) j / ((double) height / n));
 
-                                Color c = Color.hsb(data[row][column], 1.0, 1.0);
+                                Color c;
+                                if (row > Constants.D && row < Constants.SIZE - Constants.D && column > Constants.D && column < Constants.SIZE - Constants.D) {
+                                    c = Color.hsb(data[row][column], 1.0, 1.0);
+                                } else {
+                                    c = Color.hsb(data[row][column], 1.0, 0.8);
+                                }
+
                                 int r = (int) Math.round(c.getRed() * 255.0);
                                 int g = (int) Math.round(c.getGreen() * 255.0);
                                 int b = (int) Math.round(c.getBlue() * 255.0);
