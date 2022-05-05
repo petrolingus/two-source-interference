@@ -22,7 +22,7 @@ public class Algorithm2 {
     double[] fj3;
 
     private double time;
-    double xn, xxn, xnum, xd, curl_e;
+    double curl_e;
     double pulse;
 
     public enum SourceType {
@@ -51,7 +51,7 @@ public class Algorithm2 {
         }
     }
 
-    public Algorithm2(double width, int nWidth, double height, int nHeight, int npml) {
+    public Algorithm2(int nWidth, int nHeight, int npml) {
 
         this.nWidth = nWidth;
         this.nHeight = nHeight;
@@ -102,16 +102,15 @@ public class Algorithm2 {
             fj3[j] = 1.0;
         }
 
-        for (int i = 0; i <= npml; i++) {
-            xnum = npml - i;
-            xd = npml;
-            xxn = xnum / xd;
-            xn = 0.25 * Math.pow(xxn, 3.0);
+        for (int i = 0; i < npml; i++) {
+            double xnum = npml - i;
+            double xxn = xnum / npml;
+            double xn = 0.25 * Math.pow(xxn, 3.0);
             gi2[i] = 1.0 / (1.0 + xn);
             gi2[nWidth - 1 - i] = 1.0 / (1.0 + xn);
             gi3[i] = (1.0 - xn) / (1.0 + xn);
             gi3[nWidth - i - 1] = (1.0 - xn) / (1.0 + xn);
-            xxn = (xnum - .5) / xd;
+            xxn = (xnum - .5) / npml;
             xn = 0.25 * Math.pow(xxn, 3.0);
             fi1[i] = xn;
             fi1[nWidth - 2 - i] = xn;
@@ -120,17 +119,15 @@ public class Algorithm2 {
             fi3[i] = (1.0 - xn) / (1.0 + xn);
             fi3[nWidth - 2 - i] = (1.0 - xn) / (1.0 + xn);
         }
-        for (int j = 0; j <= npml; j++) {
-            xnum = npml - j;
-            xd = npml;
-            xxn = xnum / xd;
-            xn = 0.25 * Math.pow(xxn, 3.0);
-
+        for (int j = 0; j < npml; j++) {
+            double xnum = npml - j;
+            double xxn = xnum / npml;
+            double xn = 0.25 * Math.pow(xxn, 3.0);
             gj2[j] = 1.0 / (1.0 + xn);
             gj2[nHeight - 1 - j] = 1.0 / (1.0 + xn);
             gj3[j] = (1.0 - xn) / (1.0 + xn);
             gj3[nHeight - j - 1] = (1.0 - xn) / (1.0 + xn);
-            xxn = (xnum - .5) / xd;
+            xxn = (xnum - .5) / npml;
             xn = 0.25 * Math.pow(xxn, 3.0);
             fj1[j] = xn;
             fj1[nHeight - 2 - j] = xn;
@@ -150,11 +147,11 @@ public class Algorithm2 {
         // Dz
         for (int j = 1; j < nHeight; j++) {
             for (int i = 1; i < nWidth; i++) {
-                yee[i][j].dz = gi3[i] * gj3[j] * yee[i][j].dz + gi2[i] * gj2[j] * ddt * (yee[i][j].hy - yee[i - 1][j].hy - yee[i][j].hx + yee[i][j - 1].hx);
+                double a = gi3[i] * gj3[j] * yee[i][j].dz;
+                yee[i][j].dz = a + gi2[i] * gj2[j] * ddt * (yee[i][j].hy - yee[i - 1][j].hy - yee[i][j].hx + yee[i][j - 1].hx);
             }
         }
 
-//        pulse = (1.0 / (1.0 + Math.exp(-0.1 * (T - 50.0)))) * Math.sin(2 * Math.PI * 25000.0 * T);
         pulse = (1.0 / (1.0 + Math.exp(-0.1 * (time - 50.0)))) * Math.sin(2 * Math.PI * 0.05 * time);
 
         switch (sourceType) {

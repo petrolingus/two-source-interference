@@ -74,7 +74,7 @@ public class AlgorithmService extends Service<Void> {
 
 //                System.out.println("Algorithm was created");
 //                Algorithm algorithm = new Algorithm();
-                Algorithm2 algorithm2 = new Algorithm2(width, n, height,  n, Constants.D);
+                Algorithm2 algorithm2 = new Algorithm2(n, n, Constants.D);
 
                 while (!isCancelled()) {
 
