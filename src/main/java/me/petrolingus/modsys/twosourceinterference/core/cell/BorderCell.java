@@ -25,7 +25,9 @@ public class BorderCell extends Cell {
 
     @Override
     public double getValue() {
-        return 0;
+        double ex = getEx();
+        double ey = getEy();
+        return Math.sqrt(ex * ex + ey * ey);
     }
 
     @Override
@@ -56,5 +58,61 @@ public class BorderCell extends Cell {
     @Override
     public void setHz(double hz) {
         this.hzy = this.hzx = hz / 2.0;
+    }
+
+    public void setExy(double exy) {
+        this.exy = exy;
+    }
+
+    public void setExz(double exz) {
+        this.exz = exz;
+    }
+
+    public void setEyx(double eyx) {
+        this.eyx = eyx;
+    }
+
+    public void setEyz(double eyz) {
+        this.eyz = eyz;
+    }
+
+    public void setHzx(double hzx) {
+        this.hzx = hzx;
+    }
+
+    public void setHzy(double hzy) {
+        this.hzy = hzy;
+    }
+
+    public double getExy() {
+        return exy;
+    }
+
+    public double getExz() {
+        return exz;
+    }
+
+    public double getEyx() {
+        return eyx;
+    }
+
+    public double getEyz() {
+        return eyz;
+    }
+
+    public double getHzx() {
+        return hzx;
+    }
+
+    public double getHzy() {
+        return hzy;
+    }
+
+    public double getSigma() {
+        return sigma;
+    }
+
+    public double getAstra() {
+        return astra;
     }
 }

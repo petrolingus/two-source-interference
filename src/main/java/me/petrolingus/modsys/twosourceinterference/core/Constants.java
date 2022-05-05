@@ -9,24 +9,24 @@ public class Constants {
     public static final double MU = 1.25663706212; //e-6
 
     // Electrical resistance and conductance
-    public static final double SIGMA = 1;
+    public static final double SIGMA = 0.1;
 
 
     // Reflection coefficient
-    public static final double R = 1;
+    public static final double R = 10;
 
     // Absorbent layer thickness
-    public static final int D = 4;
+    public static final int D = 32;
 
     // Degree of absorbent layer
-    public static final int N = 1;
+    public static final int N = 2;
 
     // Maximum electrical conductivity of absorbent layer
     public static final double SIGMA_MAX = -Math.log(R) * Math.sqrt(EPSILON / MU) * ((N + 1.0) / (2.0 * D));
 
 
     // Simulation area side size
-    public static final int SIDE = 80;
+    public static final int SIDE = 400;
 
     public static final int SIZE = SIDE + 2 * D;
 
@@ -34,7 +34,7 @@ public class Constants {
     public static final double STEP = 0.0001;
 
     // Time step
-    public static final double TAU = 0.00005;
+    public static final double TAU = 0.1;
 
 
     // Other

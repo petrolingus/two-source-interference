@@ -10,6 +10,7 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import me.petrolingus.modsys.twosourceinterference.core.Algorithm;
+import me.petrolingus.modsys.twosourceinterference.core.Algorithm2;
 import me.petrolingus.modsys.twosourceinterference.core.Constants;
 import me.petrolingus.modsys.twosourceinterference.utils.Utils;
 
@@ -71,14 +72,18 @@ public class AlgorithmService extends Service<Void> {
                     }
                 }
 
-                System.out.println("Algorithm was created");
-                Algorithm algorithm = new Algorithm();
+//                System.out.println("Algorithm was created");
+//                Algorithm algorithm = new Algorithm();
+                Algorithm2 algorithm2 = new Algorithm2(width, n, height,  n, Constants.D);
 
                 while (!isCancelled()) {
 
-                    data = algorithm.getFieldValues();
-                    algorithm.calculate();
-//                    System.out.println(Arrays.stream(data).flatMapToDouble(Arrays::stream).max().orElse(-1));
+//                    data = algorithm.getFieldValues();
+//                    algorithm.calculate();
+//
+                    algorithm2.GenNextStep(Constants.TAU);
+                    data = algorithm2.getFieldValues();
+                    System.out.println(Arrays.stream(data).flatMapToDouble(Arrays::stream).max().orElse(-1));
 
                     try {
                         for (int i = 0; i < height; i++) {
