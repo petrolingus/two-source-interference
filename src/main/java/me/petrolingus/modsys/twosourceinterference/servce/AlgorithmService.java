@@ -55,14 +55,14 @@ public class AlgorithmService extends Service<Void> {
 
                 while (!isCancelled()) {
 
-                    algorithm.next(Constants.TAU);
+                    algorithm.next();
                     double[][] data = algorithm.getValues();
 
                     try {
                         for (int i = 0; i < height; i++) {
-                            int row = (int) Math.floor((double) i / ((double) width / n));
+                            int row = (int) (i / ((double) width / n));
                             for (int j = 0; j < width; j++) {
-                                int column = (int) Math.floor((double) j / ((double) height / n));
+                                int column = (int) (j / ((double) height / n));
                                 double value = data[row][column];
                                 Color c = Color.hsb(value, 1.0, 1.0).deriveColor(180, 1.0, 1.0, 1.0);
                                 int r = (int) Math.round(c.getRed() * 255.0);
@@ -77,6 +77,8 @@ public class AlgorithmService extends Service<Void> {
                     }
 
                     pw.setPixels(0, 0, width, height, PixelFormat.getIntArgbInstance(), pixels, 0, width);
+
+                    Thread.yield();
                 }
 
                 executor.shutdown();

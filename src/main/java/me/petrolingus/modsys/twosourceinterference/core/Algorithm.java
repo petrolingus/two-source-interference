@@ -79,7 +79,9 @@ public class Algorithm {
         System.out.println("ALGORITHM2 WAS CREATED");
     }
 
-    public void next(double ddt) {
+    public void next() {
+
+        double ddt = Constants.TAU;
 
         // Dz
         for (int j = 1; j < nHeight - 1; j++) {
@@ -90,7 +92,7 @@ public class Algorithm {
         }
 
         time = time + ddt;
-        pulse = (1.0 / (1.0 + Math.exp(-0.1 * (time - 50.0)))) * Math.sin(2 * Math.PI * 0.1 * time);
+        pulse = (1.0 / (1.0 + Math.exp(-0.1 * (time - Constants.TIME_START)))) * Math.sin(2 * Math.PI * Constants.OMEGA * time) * Constants.AMPLITUDE;
 
         switch (sourceType) {
             case ONE -> cells[(int) (0.5 * nWidth)][(int) (0.5 * nHeight)].dz = pulse;

@@ -10,9 +10,13 @@ public class Constants {
     public static final int N = 2;
 
     // Simulation area side size
-    public static final int SIDE = 200;
+    public static final int SIDE = 256;
     public static final int SIZE = SIDE + 2 * PML_LAYERS;
 
+    public static final double TIME_START = 50.0;
+    public static final double AMPLITUDE = 2;
+    public static final double OMEGA = 0.05;
+
     // Time step
-    public static final double TAU = 0.7;
+    public static final double TAU = 0.5;
 }

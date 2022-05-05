@@ -13,7 +13,7 @@ public class Cell {
     }
 
     public double getValue() {
-        return dz;
+        return Math.sqrt(hx * hx + hy * hy) / 2.0;
     }
 
     public void makePlate() {
