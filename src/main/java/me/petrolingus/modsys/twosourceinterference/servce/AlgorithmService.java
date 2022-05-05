@@ -9,7 +9,7 @@ import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
-import me.petrolingus.modsys.twosourceinterference.core.Algorithm2;
+import me.petrolingus.modsys.twosourceinterference.core.Algorithm;
 import me.petrolingus.modsys.twosourceinterference.core.Constants;
 
 import java.util.concurrent.Executors;
@@ -51,40 +51,20 @@ public class AlgorithmService extends Service<Void> {
                 }), 0, 16, TimeUnit.MILLISECONDS);
 
                 int n = Constants.SIZE;
-                double[][] data;
-
-//                System.out.println("Algorithm was created");
-//                Algorithm algorithm = new Algorithm();
-                Algorithm2 algorithm2 = new Algorithm2(n, n, Constants.D);
-
-                double maxEnergy = 0;
+                Algorithm algorithm = new Algorithm(n, n, Constants.PML_LAYERS);
 
                 while (!isCancelled()) {
 
-                    algorithm2.GenNextStep(Constants.TAU);
-                    data = algorithm2.getFieldValues();
-
-                    double currentEnergy = Math.abs(algorithm2.getFillEnergy());
-
-                    if (currentEnergy > maxEnergy) {
-                        maxEnergy = currentEnergy;
-                        System.out.println(currentEnergy);
-                    }
+                    algorithm.next(Constants.TAU);
+                    double[][] data = algorithm.getValues();
 
                     try {
                         for (int i = 0; i < height; i++) {
+                            int row = (int) Math.floor((double) i / ((double) width / n));
                             for (int j = 0; j < width; j++) {
-
-                                int row = (int) Math.floor((double) i / ((double) width / n));
                                 int column = (int) Math.floor((double) j / ((double) height / n));
-
-                                Color c;
-                                if (row > Constants.D && row < Constants.SIZE - Constants.D && column > Constants.D && column < Constants.SIZE - Constants.D) {
-                                    c = Color.hsb(data[row][column], 1.0, 1.0);
-                                } else {
-                                    c = Color.hsb(data[row][column], 1.0, 0.9);
-                                }
-
+                                double value = data[row][column];
+                                Color c = Color.hsb(value, 1.0, 1.0).deriveColor(180, 1.0, 1.0, 1.0);
                                 int r = (int) Math.round(c.getRed() * 255.0);
                                 int g = (int) Math.round(c.getGreen() * 255.0);
                                 int b = (int) Math.round(c.getBlue() * 255.0);
@@ -97,7 +77,6 @@ public class AlgorithmService extends Service<Void> {
                     }
 
                     pw.setPixels(0, 0, width, height, PixelFormat.getIntArgbInstance(), pixels, 0, width);
-
                 }
 
                 executor.shutdown();

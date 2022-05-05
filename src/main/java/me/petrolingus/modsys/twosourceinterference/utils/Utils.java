@@ -49,4 +49,8 @@ public class Utils {
         return ((value - min) / (max - min));
     }
 
+    public static double clamp(double val, double min, double max) {
+        return Math.max(min, Math.min(max, val));
+    }
+
 }
