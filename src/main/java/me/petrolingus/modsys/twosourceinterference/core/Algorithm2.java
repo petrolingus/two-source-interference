@@ -12,17 +12,11 @@ public class Algorithm2 {
     double[][] ihy;
     double[] gi2;
     double[] gi3;
-    double[] gj2;
-    double[] gj3;
     double[] fi1;
     double[] fi2;
     double[] fi3;
-    double[] fj1;
-    double[] fj2;
-    double[] fj3;
 
     private double time;
-    double curl_e;
     double pulse;
 
     public enum SourceType {
@@ -59,16 +53,9 @@ public class Algorithm2 {
         gi2 = new double[nWidth];
         gi3 = new double[nWidth];
 
-        gj2 = new double[nHeight];
-        gj3 = new double[nWidth];
-
         fi1 = new double[nWidth];
         fi2 = new double[nWidth];
         fi3 = new double[nHeight];
-
-        fj1 = new double[nHeight];
-        fj2 = new double[nHeight];
-        fj3 = new double[nHeight];
 
         for (int j = 0; j < nHeight; j++) {
             for (int i = 0; i < nWidth; i++) {
@@ -85,13 +72,6 @@ public class Algorithm2 {
             fi1[i] = 0.0;
             fi2[i] = 1.0;
             fi3[i] = 1.0;
-        }
-        for (int j = 0; j < nHeight; j++) {
-            gj2[j] = 1.0;
-            gj3[j] = 1.0;
-            fj1[j] = 0.0;
-            fj2[j] = 1.0;
-            fj3[j] = 1.0;
         }
 
         double alpha = 0.1;
@@ -119,29 +99,6 @@ public class Algorithm2 {
             fi3[i] = (1.0 - xn) / (1.0 + xn);
             fi3[nWidth - 2 - i] = (1.0 - xn) / (1.0 + xn);
         }
-        for (int j = 0; j < npml; j++) {
-            double xnum = npml - j;
-            double xxn = xnum / npml;
-            double xn = alpha * Math.pow(xxn, Constants.N);
-
-            gj2[j] = 1.0 / (1.0 + xn);
-            gj2[nHeight - 1 - j] = 1.0 / (1.0 + xn);
-
-            gj3[j] = (1.0 - xn) / (1.0 + xn);
-            gj3[nHeight - j - 1] = (1.0 - xn) / (1.0 + xn);
-
-            xxn = (xnum - 0.5) / npml;
-            xn = alpha * Math.pow(xxn, Constants.N);
-
-            fj1[j] = xn;
-            fj1[nHeight - 2 - j] = xn;
-
-            fj2[j] = 1.0 / (1.0 + xn);
-            fj2[nHeight - 2 - j] = 1.0 / (1.0 + xn);
-
-            fj3[j] = (1.0 - xn) / (1.0 + xn);
-            fj3[nHeight - 2 - j] = (1.0 - xn) / (1.0 + xn);
-        }
 
         System.out.println("ALGORITHM2 WAS CREATED");
     }
@@ -153,8 +110,8 @@ public class Algorithm2 {
         // Dz
         for (int j = 1; j < nHeight - 1; j++) {
             for (int i = 1; i < nWidth - 1; i++) {
-                double a = gi3[i] * gj3[j] * yee[i][j].dz;
-                yee[i][j].dz = a + gi2[i] * gj2[j] * ddt * (yee[i][j].hy - yee[i - 1][j].hy - yee[i][j].hx + yee[i][j - 1].hx);
+                double a = gi3[i] * gi3[j] * yee[i][j].dz;
+                yee[i][j].dz = a + gi2[i] * gi2[j] * ddt * (yee[i][j].hy - yee[i - 1][j].hy - yee[i][j].hx + yee[i][j - 1].hx);
             }
         }
 
@@ -194,20 +151,30 @@ public class Algorithm2 {
         // Hx
         for (int j = 0; j < nHeight - 1; j++) {
             for (int i = 0; i < nWidth; i++) {
-                curl_e = yee[i][j].ez - yee[i][j + 1].ez;
+                double curl_e = yee[i][j].ez - yee[i][j + 1].ez;
                 ihx[i][j] = ihx[i][j] + fi1[i] * curl_e;
-                yee[i][j].hx = fj3[j] * yee[i][j].hx + fj2[j] * ddt * (curl_e + ihx[i][j]);
+                yee[i][j].hx = fi3[j] * yee[i][j].hx + fi2[j] * ddt * (curl_e + ihx[i][j]);
             }
         }
 
         // Hy
         for (int j = 0; j <= nHeight - 1; j++) {
             for (int i = 0; i < nWidth - 1; i++) {
-                curl_e = yee[i + 1][j].ez - yee[i][j].ez;
-                ihy[i][j] = ihy[i][j] + fj1[j] * curl_e;
+                double curl_e = yee[i + 1][j].ez - yee[i][j].ez;
+                ihy[i][j] = ihy[i][j] + fi1[j] * curl_e;
                 yee[i][j].hy = fi3[i] * yee[i][j].hy + fi2[i] * ddt * (curl_e + ihy[i][j]);
             }
         }
+    }
+
+    public double getFillEnergy() {
+        double res = 0;
+        for (int i = 0; i < Constants.SIZE; i++) {
+            for (int j = 0; j < Constants.SIZE; j++) {
+                res += yee[i][j].getValue();
+            }
+        }
+        return res;
     }
 
     public double[][] getFieldValues() {

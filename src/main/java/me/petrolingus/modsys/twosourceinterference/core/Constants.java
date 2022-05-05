@@ -26,7 +26,7 @@ public class Constants {
 
 
     // Simulation area side size
-    public static final int SIDE = 256;
+    public static final int SIDE = 100;
 
     public static final int SIZE = SIDE + 2 * D;
 

@@ -9,17 +9,12 @@ import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
-import me.petrolingus.modsys.twosourceinterference.core.Algorithm;
 import me.petrolingus.modsys.twosourceinterference.core.Algorithm2;
 import me.petrolingus.modsys.twosourceinterference.core.Constants;
-import me.petrolingus.modsys.twosourceinterference.utils.Utils;
 
-import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
 @SuppressWarnings("DuplicatedCode")
 public class AlgorithmService extends Service<Void> {
@@ -47,43 +42,34 @@ public class AlgorithmService extends Service<Void> {
                 PixelWriter pw = img.getPixelWriter();
 
                 ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-                executor.scheduleAtFixedRate(() -> {
-                    Platform.runLater(() -> {
-                        GraphicsContext g = canvas.getGraphicsContext2D();
-                        g.fillRect(0, 0, canvas.getWidth(), canvas.getWidth());
-                        g.setStroke(Color.GRAY);
-                        g.drawImage(img, 0, 0);
-                        g.strokeRect(0, 0, canvas.getWidth(), canvas.getWidth());
-                    });
-                }, 0, 16, TimeUnit.MILLISECONDS);
+                executor.scheduleAtFixedRate(() -> Platform.runLater(() -> {
+                    GraphicsContext g = canvas.getGraphicsContext2D();
+                    g.fillRect(0, 0, canvas.getWidth(), canvas.getWidth());
+                    g.setStroke(Color.GRAY);
+                    g.drawImage(img, 0, 0);
+                    g.strokeRect(0, 0, canvas.getWidth(), canvas.getWidth());
+                }), 0, 16, TimeUnit.MILLISECONDS);
 
                 int n = Constants.SIZE;
-                double[][] data = new double[n][n];
-//                for (int i = 0; i < n; i++) {
-//                    for (int j = 0; j < n; j++) {
-//                        data[i][j] = 360 * ThreadLocalRandom.current().nextDouble();
-//                    }
-//                }
-
-                double[][] brightness = new double[n][n];
-                for (int i = 0; i < n; i++) {
-                    for (int j = 0; j < n; j++) {
-                        brightness[i][j] = ThreadLocalRandom.current().nextDouble();
-                    }
-                }
+                double[][] data;
 
 //                System.out.println("Algorithm was created");
 //                Algorithm algorithm = new Algorithm();
                 Algorithm2 algorithm2 = new Algorithm2(n, n, Constants.D);
 
+                double maxEnergy = 0;
+
                 while (!isCancelled()) {
 
-//                    data = algorithm.getFieldValues();
-//                    algorithm.calculate();
-//
                     algorithm2.GenNextStep(Constants.TAU);
                     data = algorithm2.getFieldValues();
-//                    System.out.println(Arrays.stream(data).flatMapToDouble(Arrays::stream).max().orElse(-1));
+
+                    double currentEnergy = Math.abs(algorithm2.getFillEnergy());
+
+                    if (currentEnergy > maxEnergy) {
+                        maxEnergy = currentEnergy;
+                        System.out.println(currentEnergy);
+                    }
 
                     try {
                         for (int i = 0; i < height; i++) {
@@ -96,7 +82,7 @@ public class AlgorithmService extends Service<Void> {
                                 if (row > Constants.D && row < Constants.SIZE - Constants.D && column > Constants.D && column < Constants.SIZE - Constants.D) {
                                     c = Color.hsb(data[row][column], 1.0, 1.0);
                                 } else {
-                                    c = Color.hsb(data[row][column], 1.0, 0.8);
+                                    c = Color.hsb(data[row][column], 1.0, 0.9);
                                 }
 
                                 int r = (int) Math.round(c.getRed() * 255.0);
