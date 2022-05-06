@@ -9,7 +9,7 @@ public class Algorithm {
     int nWidth;
     int nHeight;
 
-    SourceType sourceType = SourceType.TWO;
+    SourceType sourceType = SourceType.ONE;
 
     private final Cell[][] cells;
     double[][] ihx;
@@ -84,8 +84,8 @@ public class Algorithm {
         double ddt = Constants.TAU;
 
         // Dz
-        for (int j = 1; j < nHeight - 1; j++) {
-            for (int i = 1; i < nWidth - 1; i++) {
+        for (int j = 1; j < nHeight; j++) {
+            for (int i = 1; i < nWidth; i++) {
                 double a = gi3[i] * gi3[j] * cells[i][j].dz;
                 cells[i][j].dz = a + gi2[i] * gi2[j] * ddt * (cells[i][j].hy - cells[i - 1][j].hy - cells[i][j].hx + cells[i][j - 1].hx);
             }
@@ -120,8 +120,8 @@ public class Algorithm {
         }
 
         // Ez
-        for (int j = 1; j < nHeight - 1; j++) {
-            for (int i = 1; i < nWidth - 1; i++) {
+        for (int j = 0; j < nHeight; j++) {
+            for (int i = 0; i < nWidth; i++) {
                 cells[i][j].ez = cells[i][j].ga * cells[i][j].dz;
             }
         }
@@ -136,7 +136,7 @@ public class Algorithm {
         }
 
         // Hy
-        for (int j = 0; j <= nHeight - 1; j++) {
+        for (int j = 0; j < nHeight; j++) {
             for (int i = 0; i < nWidth - 1; i++) {
                 double curl_e = cells[i + 1][j].ez - cells[i][j].ez;
                 ihy[i][j] = ihy[i][j] + fi1[j] * curl_e;
@@ -147,13 +147,12 @@ public class Algorithm {
 
     public double[][] getValues() {
         double[][] data = new double[Constants.SIZE][Constants.SIZE];
-        for (int i = 0; i < Constants.SIZE; i++) {
-            for (int j = 0; j < Constants.SIZE; j++) {
+        for (int i = 1; i < Constants.SIZE - 1; i++) {
+            for (int j = 1; j < Constants.SIZE - 1; j++) {
                 if (cells[i][j].isPlate) {
                     data[i][j] = -1;
                 } else {
-                    double value =  cells[i][j].getValue() * 1000;
-                    data[i][j] = Utils.clamp(value, 0, 270);
+                    data[i][j] = cells[i][j].getValue();
                 }
             }
         }

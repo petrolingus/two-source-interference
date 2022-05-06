@@ -2,6 +2,8 @@ package me.petrolingus.modsys.twosourceinterference;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.paint.Color;
+import me.petrolingus.modsys.twosourceinterference.core.Algorithm;
+import me.petrolingus.modsys.twosourceinterference.core.Constants;
 import me.petrolingus.modsys.twosourceinterference.utils.*;
 import org.joml.Matrix4f;
 import org.joml.Vector2d;
@@ -31,7 +33,7 @@ public class LwjglApplication {
 
     public static Canvas canvas;
     private static final int width = 800;
-    private static final int height = 800;// Assuming a 32-bit display with a byte each for red, green, blue, and alpha.
+    private static final int height = 800;
     private static final int bpp = 4;
     private static final int whb = width * height * bpp;
     public static ByteBuffer buffer = BufferUtils.createByteBuffer(whb);
@@ -119,16 +121,6 @@ public class LwjglApplication {
         ShaderProgram shaderProgram = new ShaderProgram(vertexShaderPath, fragmentShaderPath);
         shaderProgram.createUniform("projectionMatrix");
         shaderProgram.createUniform("viewMatrix");
-        shaderProgram.createUniform("iGlobalTime");
-        shaderProgram.createUniform("amplitude");
-        shaderProgram.createUniform("wavelength");
-        shaderProgram.createUniform("cyclicFrequency");
-        shaderProgram.createUniform("initialPhase");
-        shaderProgram.createUniform("between");
-        shaderProgram.createUniform("timeMul");
-        shaderProgram.createUniform("colorDelimiter");
-        shaderProgram.createUniform("minColor");
-        shaderProgram.createUniform("maxColor");
 
         // Create mesh of plane
         Mesh mesh = OBJLoader.loadMesh("/models/plane.obj");
@@ -137,17 +129,16 @@ public class LwjglApplication {
         double theta = Math.toRadians(60);
         double phi = Math.toRadians(45);
 
-        // Global timer
-        float t = 0;
-
         // Create FloatBuffer for pass vertex height to vertex shader
         float[] positions = mesh.getPositions();
         int positionsLength = positions.length;
         FloatBuffer positionsFloatBuffer = MemoryUtil.memAllocFloat(positionsLength);
         positionsFloatBuffer.put(positions).flip();
 
-        float[] distancesToSource1 = new float[positionsLength];
-        float[] distancesToSource2 = new float[positionsLength];
+        System.out.println(positionsLength);
+
+        int n = Constants.SIZE;
+        Algorithm algorithm = new Algorithm(n, n, Constants.PML_LAYERS);
 
         while (!glfwWindowShouldClose(window)) {
 
@@ -155,33 +146,13 @@ public class LwjglApplication {
 
             GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-            // If source distance changed we need to recalculate distances
-            if (isDistanceChanged) {
-                float pos = (float) Math.sqrt(between * between / 2);
-                for (int i = 0; i < positionsLength; i += 3) {
-                    float x = 800 * positions[i];
-                    float z = 800 * positions[i + 2];
-                    distancesToSource1[i] = (float) Math.sqrt(Math.pow(x - pos, 2) + Math.pow(z + pos, 2));
-                    distancesToSource2[i] = (float) Math.sqrt(Math.pow(x + pos, 2) + Math.pow(z - pos, 2));
-                }
-                isDistanceChanged = false;
-            }
+            algorithm.next();
+            double[][] values = algorithm.getValues();
 
-            double realTime = t * timeMul;
-            double k = 2 * Math.PI / wavelength;
             for (int i = 0; i < positionsLength; i += 3) {
-
-                double dist1 = distancesToSource1[i];
-                double localAmplitude1 = amplitude / dist1;
-                double value1 = localAmplitude1 * Math.sin(cyclicFrequency * realTime - k * dist1 + initialPhase);
-
-                double dist2 = distancesToSource2[i];
-                double localAmplitude2 = amplitude / dist2;
-                double value2 = localAmplitude2 * Math.sin(cyclicFrequency * realTime - k * dist2 + initialPhase);
-
-                double l = localAmplitude1 + localAmplitude2;
-                double mappedValue = value1 + value2;
-                positions[i + 1] = (float) mappedValue;
+                int x = (int) ((Constants.SIZE - 1) * ((positions[i] + 1.0) / 2.0));
+                int y = (int) ((Constants.SIZE - 1) * ((positions[i + 2] + 1.0) / 2.0));
+                positions[i + 1] = (float) values[y][x];
             }
 
             positionsFloatBuffer.put(positions).flip();
@@ -191,6 +162,7 @@ public class LwjglApplication {
             Matrix4f projectionMatrix = new Matrix4f().setOrtho(-1f, 1f, -1f, 1f, 0.01f, 1000.f);
             Matrix4f viewMatrix;
             if (is3DActive) {
+                // 3D
                 theta -= mouseInput.getDisplVec().x * 0.01;
                 if (theta < 0 || theta > Math.PI) {
                     theta += mouseInput.getDisplVec().x * 0.01;
@@ -218,20 +190,6 @@ public class LwjglApplication {
             {
                 shaderProgram.setUniform("projectionMatrix", projectionMatrix);
                 shaderProgram.setUniform("viewMatrix", viewMatrix);
-                shaderProgram.setUniform("iGlobalTime", t++);
-                shaderProgram.setUniform("timeMul", timeMul);
-
-                shaderProgram.setUniform("amplitude", amplitude);
-                shaderProgram.setUniform("wavelength", wavelength);
-                shaderProgram.setUniform("cyclicFrequency", cyclicFrequency);
-                shaderProgram.setUniform("initialPhase", initialPhase);
-                shaderProgram.setUniform("between", between);
-
-                shaderProgram.setUniform("minColor", minColor);
-                shaderProgram.setUniform("maxColor", maxColor);
-                shaderProgram.setUniform("colorDelimiter", colorDelimiter);
-
-
                 mesh.render();
             }
             shaderProgram.unbind();

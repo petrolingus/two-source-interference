@@ -92,20 +92,15 @@ public class Controller {
             event.consume();
         });
 
-        // Old algorithm
-//        new Thread(() -> {
-//            try {
-//                lwjglApplication.run();
-//            } catch (Exception e) {
-//                throw new RuntimeException("Lwjgl application interrupted", e);
-//            }
-//        }).start();
-//        CanvasUpdateService service3d = new CanvasUpdateService(canvas);
-//        service3d.start();
-
-        // New algorithm
-        AlgorithmService service = new AlgorithmService(canvas);
-        service.start();
+        new Thread(() -> {
+            try {
+                lwjglApplication.run();
+            } catch (Exception e) {
+                throw new RuntimeException("Lwjgl application interrupted", e);
+            }
+        }).start();
+        CanvasUpdateService service3d = new CanvasUpdateService(canvas);
+        service3d.start();
     }
 
     public void onButtonClick() {
