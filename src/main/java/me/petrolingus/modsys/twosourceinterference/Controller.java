@@ -1,7 +1,5 @@
 package me.petrolingus.modsys.twosourceinterference;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -67,9 +65,7 @@ public class Controller {
         g.fillRect(0, 0, canvas.getWidth(), canvas.getWidth());
 
         lwjglApplication.setIs3DActive(false);
-        viewType.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
-            lwjglApplication.setIs3DActive(!observable.getValue().equals(view3dRadioButton));
-        });
+        viewType.selectedToggleProperty().addListener((observable, oldValue, newValue) -> lwjglApplication.setIs3DActive(!observable.getValue().equals(view3dRadioButton)));
 
         MouseInput mouseInput = new MouseInput();
         lwjglApplication.setMouseInput(mouseInput);
@@ -110,9 +106,7 @@ public class Controller {
     private void setupColorPicker(ColorPicker colorPicker, Consumer<Vector3f> function) {
         Color color = colorPicker.getValue();
         function.accept(new Vector3f((float) color.getRed(), (float) color.getGreen(), (float) color.getBlue()));
-        colorPicker.valueProperty().addListener((observable, oldValue, newValue) -> {
-            function.accept(new Vector3f((float) newValue.getRed(), (float) newValue.getGreen(), (float) newValue.getBlue()));
-        });
+        colorPicker.valueProperty().addListener((observable, oldValue, newValue) -> function.accept(new Vector3f((float) newValue.getRed(), (float) newValue.getGreen(), (float) newValue.getBlue())));
     }
 
     private void setup(Control control, Consumer<Double> function) {
