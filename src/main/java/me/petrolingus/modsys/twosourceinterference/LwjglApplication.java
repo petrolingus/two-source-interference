@@ -113,7 +113,7 @@ public class LwjglApplication {
         GL11.glEnable(GL_STENCIL_TEST);
         GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glFrontFace(GL11.GL_CCW);
-        GL11.glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
+        GL11.glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
         // Create shader
         String vertexShaderPath = "src/main/resources/shaders/vertex.shader";
@@ -126,7 +126,7 @@ public class LwjglApplication {
         Mesh mesh = OBJLoader.loadMesh("/models/plane.obj");
 
         // Initial camera position
-        double theta = Math.toRadians(60);
+        double theta = Math.toRadians(45);
         double phi = Math.toRadians(45);
 
         // Create FloatBuffer for pass vertex height to vertex shader
@@ -150,8 +150,8 @@ public class LwjglApplication {
             double[][] values = algorithm.getValues();
 
             for (int i = 0; i < positionsLength; i += 3) {
-                int x = (int) ((Constants.SIZE - 1) * ((positions[i] + 1.0) / 2.0));
-                int y = (int) ((Constants.SIZE - 1) * ((positions[i + 2] + 1.0) / 2.0));
+                int x = (int) ((values.length - 1) * ((positions[i] + 1.0) / 2.0));
+                int y = (int) ((values.length - 1) * ((positions[i + 2] + 1.0) / 2.0));
                 positions[i + 1] = (float) values[y][x];
             }
 

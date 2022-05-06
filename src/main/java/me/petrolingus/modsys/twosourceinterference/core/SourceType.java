@@ -5,5 +5,6 @@ public enum SourceType {
     TWO,
     FOUR,
     PLATE,
+    TWO_SLOTS,
     PULSE
 }

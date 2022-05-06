@@ -9,7 +9,7 @@ out float pixelHeight;
 
 void main()
 {
-    float yValue = clamp(position.y, 0, 0.4);
+    float yValue = clamp(position.y, 0, 0.5);
 	vec4 mvPos = viewMatrix * vec4(position.x, yValue, position.z, 1.0);
     gl_Position = projectionMatrix * mvPos;
     pixelHeight = position.y;

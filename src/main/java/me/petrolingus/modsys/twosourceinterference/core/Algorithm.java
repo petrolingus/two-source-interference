@@ -7,7 +7,7 @@ public class Algorithm {
     int nWidth;
     int nHeight;
 
-    SourceType sourceType = SourceType.ONE;
+    SourceType sourceType = SourceType.TWO_SLOTS;
 
     private final Cell[][] cells;
     double[][] ihx;
@@ -73,8 +73,6 @@ public class Algorithm {
             fi3[i] = (1.0 - xn) / (1.0 + xn);
             fi3[nWidth - 2 - i] = (1.0 - xn) / (1.0 + xn);
         }
-
-        System.out.println("ALGORITHM2 WAS CREATED");
     }
 
     public void next() {
@@ -109,6 +107,27 @@ public class Algorithm {
                 for (int i = (int) (0.33 * nWidth); i < (int) (0.66 * nWidth); i++) {
                     cells[i][(int) (0.66 * nHeight)].makePlate();
                     cells[i][(int) (0.66 * nHeight)].dz = 0;
+                }
+            }
+            case TWO_SLOTS -> {
+                cells[(int) (0.5 * nWidth)][(int) (0.2 * nHeight)].dz = pulse;
+                for (int i = (int) (0.0 * nWidth); i < (int) (0.4 * nWidth); i++) {
+                    for (int j = 0; j < 10; j++) {
+                        cells[i][(int) (0.4 * nHeight) + j].makePlate();
+                        cells[i][(int) (0.4 * nHeight) + j].dz = 0;
+                    }
+                }
+                for (int i = (int) (0.45 * nWidth); i < (int) (0.55 * nWidth); i++) {
+                    for (int j = 0; j < 10; j++) {
+                        cells[i][(int) (0.4 * nHeight) + j].makePlate();
+                        cells[i][(int) (0.4 * nHeight) + j].dz = 0;
+                    }
+                }
+                for (int i = (int) (0.6 * nWidth); i < (nWidth); i++) {
+                    for (int j = 0; j < 10; j++) {
+                        cells[i][(int) (0.4 * nHeight) + j].makePlate();
+                        cells[i][(int) (0.4 * nHeight) + j].dz = 0;
+                    }
                 }
             }
             case PULSE -> {
