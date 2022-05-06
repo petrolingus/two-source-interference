@@ -7,8 +7,6 @@ public class Algorithm {
     int nWidth;
     int nHeight;
 
-    SourceType sourceType = SourceType.TWO_SLOTS;
-
     private final Cell[][] cells;
     double[][] ihx;
     double[][] ihy;
@@ -77,6 +75,18 @@ public class Algorithm {
 
     public void next() {
 
+        if (Constants.clearRequest) {
+            time = 0;
+            for (int j = 0; j < nHeight; j++) {
+                for (int i = 0; i < nWidth; i++) {
+                    cells[i][j] = new Cell(1.0);
+                }
+            }
+            ihx = new double[nWidth][nHeight];
+            ihy = new double[nWidth][nHeight];
+            Constants.clearRequest = false;
+        }
+
         double ddt = Constants.TAU;
 
         // Dz
@@ -90,7 +100,7 @@ public class Algorithm {
         time = time + ddt;
         pulse = (1.0 / (1.0 + Math.exp(-0.1 * (time - Constants.TIME_START)))) * Math.sin(2 * Math.PI * Constants.OMEGA * time) * Constants.AMPLITUDE;
 
-        switch (sourceType) {
+        switch (Constants.sourceType) {
             case ONE -> cells[(int) (0.5 * nWidth)][(int) (0.5 * nHeight)].dz = pulse;
             case TWO -> {
                 cells[(int) (0.33 * nWidth)][(int) (0.33 * nHeight)].dz = pulse;

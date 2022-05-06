@@ -1,29 +1,25 @@
 package me.petrolingus.modsys.twosourceinterference;
 
 import javafx.scene.canvas.Canvas;
-import javafx.scene.paint.Color;
 import me.petrolingus.modsys.twosourceinterference.core.Algorithm;
 import me.petrolingus.modsys.twosourceinterference.core.Constants;
 import me.petrolingus.modsys.twosourceinterference.utils.*;
 import org.joml.Matrix4f;
-import org.joml.Vector2d;
 import org.joml.Vector3f;
-import org.lwjgl.*;
-import org.lwjgl.glfw.*;
-import org.lwjgl.opengl.*;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
 
-import java.nio.*;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.util.Objects;
-import java.util.concurrent.ThreadLocalRandom;
 
-import static org.lwjgl.glfw.Callbacks.*;
+import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
-import static org.lwjgl.system.MemoryUtil.*;
+import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class LwjglApplication {
 
@@ -37,27 +33,18 @@ public class LwjglApplication {
     private static final int bpp = 4;
     private static final int whb = width * height * bpp;
     public static ByteBuffer buffer = BufferUtils.createByteBuffer(whb);
-    private float between;
 
-    private float amplitude;
-    private float cyclicFrequency;
-    private float wavelength;
-    private float initialPhase;
-    private float timeMul;
-    private float colorDelimiter;
     private Vector3f minColor;
     private Vector3f maxColor;
-    private boolean is3DActive;
+    private float colorDelimiter;
 
-    private boolean isDistanceChanged = true;
+    private boolean is3DActive;
 
     private MouseInput mouseInput;
 
     public void setMouseInput(MouseInput mouseInput) {
         this.mouseInput = mouseInput;
     }
-
-    private Vector3f angle;
 
     public void run() throws Exception {
         init();
@@ -90,7 +77,7 @@ public class LwjglApplication {
         if (window == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
 
-        // Setup a key callback. It will be called every time a key is pressed, repeated or released.
+        // Set up a key callback. It will be called every time a key is pressed, repeated or released.
         glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
             if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
                 glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
@@ -121,6 +108,9 @@ public class LwjglApplication {
         ShaderProgram shaderProgram = new ShaderProgram(vertexShaderPath, fragmentShaderPath);
         shaderProgram.createUniform("projectionMatrix");
         shaderProgram.createUniform("viewMatrix");
+        shaderProgram.createUniform("minColor");
+        shaderProgram.createUniform("maxColor");
+        shaderProgram.createUniform("colorDelimiter");
 
         // Create mesh of plane
         Mesh mesh = OBJLoader.loadMesh("/models/plane.obj");
@@ -190,6 +180,9 @@ public class LwjglApplication {
             {
                 shaderProgram.setUniform("projectionMatrix", projectionMatrix);
                 shaderProgram.setUniform("viewMatrix", viewMatrix);
+                shaderProgram.setUniform("minColor", minColor);
+                shaderProgram.setUniform("maxColor", maxColor);
+                shaderProgram.setUniform("colorDelimiter", colorDelimiter);
                 mesh.render();
             }
             shaderProgram.unbind();
@@ -204,31 +197,6 @@ public class LwjglApplication {
     }
 
     // Setters
-    public void setBetween(double value) {
-        between = (float) value;
-        isDistanceChanged = true;
-    }
-
-    public void setAmplitude(double amplitude) {
-        this.amplitude = (float) amplitude;
-    }
-
-    public void setCyclicFrequency(double cyclicFrequency) {
-        this.cyclicFrequency = (float) cyclicFrequency;
-    }
-
-    public void setWavelength(double wavelength) {
-        this.wavelength = (float) wavelength;
-    }
-
-    public void setInitialPhase(double initialPhase) {
-        this.initialPhase = (float) initialPhase;
-    }
-
-    public void setTimeMul(double timeMul) {
-        this.timeMul = (float) timeMul;
-    }
-
     public void setColorDelimiter(double colorDelimiter) {
         this.colorDelimiter = (float) colorDelimiter;
     }
@@ -243,9 +211,5 @@ public class LwjglApplication {
 
     public void setIs3DActive(boolean is3DActive) {
         this.is3DActive = is3DActive;
-    }
-
-    public void setAngle(Vector3f angle) {
-        this.angle = angle;
     }
 }

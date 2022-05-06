@@ -1,10 +1,15 @@
 package me.petrolingus.modsys.twosourceinterference;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import me.petrolingus.modsys.twosourceinterference.core.Constants;
+import me.petrolingus.modsys.twosourceinterference.core.SourceType;
 import me.petrolingus.modsys.twosourceinterference.servce.CanvasUpdateService;
 import me.petrolingus.modsys.twosourceinterference.utils.MouseInput;
 import org.joml.Vector3f;
@@ -13,20 +18,13 @@ import java.util.function.Consumer;
 
 public class Controller {
 
-    // Source A
-    public TextField aAmplitudeText;
-    public TextField aCyclicFrequencyText;
-    public TextField aWavelengthText;
-    public TextField aInitialPhaseText;
+    public ChoiceBox<SourceType> choiceBox;
 
-    // Source B
-    public TextField bAmplitudeText;
-    public TextField bCyclicFrequencyText;
-    public TextField bWavelengthText;
-    public TextField bInitialPhaseText;
+    // Source A
+    public TextField amplitudeText;
+    public TextField cyclicFrequencyText;
 
     // Options
-    public Slider distanceSlider;
     public TextField timeMulText;
     public ColorPicker maxColorPicker;
     public ColorPicker minColorPicker;
@@ -45,15 +43,20 @@ public class Controller {
         lwjglApplication = new LwjglApplication();
         LwjglApplication.canvas = canvas;
 
+        choiceBox.setItems(FXCollections.observableArrayList(SourceType.values()));
+        choiceBox.setValue(SourceType.ONE);
+        Constants.setSourceType(SourceType.ONE);
+        choiceBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            Constants.setSourceType(newValue);
+            onClearButton();
+        });
+
         // Text fields setup
-        setup(aAmplitudeText, lwjglApplication::setAmplitude);
-        setup(aCyclicFrequencyText, lwjglApplication::setCyclicFrequency);
-        setup(aWavelengthText, lwjglApplication::setWavelength);
-        setup(aInitialPhaseText, lwjglApplication::setInitialPhase);
-        setup(timeMulText, lwjglApplication::setTimeMul);
+        setup(amplitudeText, Constants::setAmplitude);
+        setup(cyclicFrequencyText, Constants::setOmega);
+        setup(timeMulText, Constants::setTimeMul);
 
         // Sliders setup
-        setup(distanceSlider, lwjglApplication::setBetween);
         setup(colorSlider, lwjglApplication::setColorDelimiter);
 
         // Color pickers setup
@@ -100,8 +103,8 @@ public class Controller {
         service3d.start();
     }
 
-    public void onButtonClick() {
-//        service3d.start();
+    public void onClearButton() {
+        Constants.clearRequest = true;
     }
 
     private void setupColorPicker(ColorPicker colorPicker, Consumer<Vector3f> function) {

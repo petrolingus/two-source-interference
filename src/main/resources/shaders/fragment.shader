@@ -2,6 +2,10 @@
 
 in float pixelHeight;
 
+uniform vec3 minColor;
+uniform vec3 maxColor;
+uniform float colorDelimiter;
+
 out vec4 fragColor;
 
 vec3 hsv2rgb(vec3 c)
@@ -18,7 +22,7 @@ float valueMapper(float value, float min, float max) {
 void main()
 {
 //    vec3 color = hsv2rgb(vec3(pixelHeight, 1.0, 1.0));
-    vec3 color = mix(vec3(0.0, 0.9, 0.9), vec3(1.0, 0.0, 0.0), valueMapper(clamp(pixelHeight, 0, 0.2), 0, 0.2));
+    vec3 color = mix(minColor, maxColor, clamp(valueMapper(clamp(pixelHeight, 0, colorDelimiter), 0, colorDelimiter), 0, 0.9));
 
     if (pixelHeight == -1) {
         color = vec3(0, 0, 0);
