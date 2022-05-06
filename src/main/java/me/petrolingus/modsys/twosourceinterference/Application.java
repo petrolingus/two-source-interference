@@ -13,9 +13,7 @@ public class Application extends javafx.application.Application {
         stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
-        stage.showingProperty().addListener((observable, oldValue, newValue) -> {
-            System.exit(0);
-        });
+        stage.showingProperty().addListener((observable, oldValue, newValue) -> System.exit(0));
     }
 
     public static void main(String[] args) {

@@ -1,7 +1,5 @@
 package me.petrolingus.modsys.twosourceinterference.core;
 
-import me.petrolingus.modsys.twosourceinterference.utils.Utils;
-
 import java.util.Arrays;
 
 public class Algorithm {

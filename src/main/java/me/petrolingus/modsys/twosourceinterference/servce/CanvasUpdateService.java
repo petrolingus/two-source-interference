@@ -1,4 +1,4 @@
-package me.petrolingus.modsys.twosourceinterference;
+package me.petrolingus.modsys.twosourceinterference.servce;
 
 import javafx.application.Platform;
 import javafx.concurrent.Service;
@@ -8,6 +8,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import me.petrolingus.modsys.twosourceinterference.LwjglApplication;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.Executors;
@@ -29,7 +30,7 @@ public class CanvasUpdateService extends Service<Void> {
             protected Void call() {
 
                 int width = (int) canvas.getWidth();
-                int height = (int) canvas.getHeight();;
+                int height = (int) canvas.getHeight();
                 int bpp = 4; // Assuming a 32-bit display with a byte each for red, green, blue, and alpha.
 
                 // Update canvas every 16 ms

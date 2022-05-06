@@ -3,15 +3,12 @@ package me.petrolingus.modsys.twosourceinterference;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
-import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import me.petrolingus.modsys.twosourceinterference.servce.AlgorithmService;
+import me.petrolingus.modsys.twosourceinterference.servce.CanvasUpdateService;
 import me.petrolingus.modsys.twosourceinterference.utils.MouseInput;
 import org.joml.Vector3f;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public class Controller {
